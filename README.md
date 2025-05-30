@@ -76,6 +76,33 @@ python src/chat.py --model-name gpt-4
 python src/chat.py --vector-store-path ./my_custom_db
 ```
 
+- Show the sources used for each response:
+```
+python src/chat.py --show-sources
+```
+
+## Adding Your Resume to the Vector Database
+
+You can add your resume to the vector database to provide the assistant with more context about your background and skills:
+
+```
+python src/add_resume.py path/to/your/resume.pdf
+```
+
+This will:
+1. Process your resume document
+2. Add appropriate metadata tags
+3. Add it to the existing vector database
+4. Enable the assistant to reference your background information when relevant
+
+Supported resume formats:
+- PDF (.pdf)
+- Text files (.txt)
+- Markdown (.md)
+- Word documents (.docx)
+
+The assistant will use this information to provide more personalized advice without awkwardly injecting irrelevant resume details into conversations.
+
 ## Tips for Effective Queries
 
 - Be specific in your questions

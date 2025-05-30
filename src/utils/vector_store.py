@@ -21,14 +21,15 @@ def create_vector_store(documents: List[Document], persist_directory: str = "./c
     # Initialize embeddings
     embeddings = OpenAIEmbeddings()
     
-    # Create and persist vector store
+    # Create vector store with persistence
     vector_store = Chroma.from_documents(
         documents=documents,
         embedding=embeddings,
         persist_directory=persist_directory
     )
     
-    vector_store.persist()
+    # The persist method might not be available in newer versions
+    # The data is automatically persisted when using persist_directory
     print(f"Vector store created with {len(documents)} documents and persisted to {persist_directory}")
     
     return vector_store

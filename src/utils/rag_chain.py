@@ -16,17 +16,18 @@ def create_rag_chain(vector_store, model_name="gpt-3.5-turbo"):
     Returns:
         A RAG chain
     """
-    # Initialize the language model
+    # Initialize the OpenAI LLM
     llm = ChatOpenAI(
         model_name=model_name,
         temperature=0.7
     )
     
-    # Initialize memory with explicit output key
+    # Initialize memory
     memory = ConversationBufferMemory(
         memory_key="chat_history",
         return_messages=True,
-        output_key="answer"  # Explicitly specify which output to store
+        output_key="answer"  # Explicitly specify which key from chain output to store in memory
+                             # This fixes the "Got multiple output keys" error
     )
     
     # Create a better prompt template for the system
@@ -41,6 +42,12 @@ Remember details about their business from previous exchanges. Build a mental mo
 When they ask questions or share progress, respond first, then ask a follow-up question that will help them think more deeply or take a useful next step.
 
 If you don't know something or need clarification, just ask directly. Don't make assumptions.
+
+## Context Handling Instructions:
+When you receive context information, be aware of the document types:
+1. For course content (document_type is not specified), use this information freely to provide advice based on the Earnable principles.
+2. For resume information (document_type = "resume"), ONLY reference this information when directly relevant to the conversation. DO NOT mention that you have their resume unless they specifically ask about it. Use this information subtly to personalize your advice, but don't awkwardly inject resume details into the conversation.
+3. For client information (document_type = "client_document"), use this information to provide tailored advice specifically for that client. You can refer to details about this specific client project, but try to be natural in how you reference it. This is information about one of the user's clients.
 
 Your voice should be:
 - Conversational and natural (never robotic or formal)
@@ -92,8 +99,18 @@ def format_response(response: Dict[str, Any]) -> Dict[str, Any]:
             "content": doc.page_content[:150] + "...",
             "source": doc.metadata.get("source", "Unknown"),
             "module": doc.metadata.get("module", "Unknown"),
-            "page": doc.metadata.get("page", 0)
+            "page": doc.metadata.get("page", 0),
+            "document_type": doc.metadata.get("document_type", "course_content")
         }
+        
+        # Add client-specific metadata if available
+        if source["document_type"] == "client_document":
+            source["client_name"] = doc.metadata.get("client_name", "unknown")
+            source["document_category"] = doc.metadata.get("document_category", "general")
+            source["project_stage"] = doc.metadata.get("project_stage", "undefined")
+            source["content_types"] = doc.metadata.get("content_types", "general")
+            source["priority"] = doc.metadata.get("priority", 5)
+        
         sources.append(source)
     
     # Return formatted response

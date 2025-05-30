@@ -3,6 +3,7 @@
 .env
 chroma_db/
 user_profile.json
+data/
 
 # Python
 __pycache__/

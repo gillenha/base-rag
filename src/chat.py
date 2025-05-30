@@ -29,13 +29,67 @@ def display_sources(sources):
         return
     
     console.print("\n[dim]Sources used:[/dim]")
-    for idx, source in enumerate(sources[:3]):  # Only show top 3 sources
+    
+    # Group sources by document type
+    course_sources = []
+    resume_sources = []
+    client_sources = {}  # Dictionary to store client sources by client name
+    
+    for source in sources:
+        doc_type = source.get("document_type")
+        if doc_type == "resume":
+            resume_sources.append(source)
+        elif doc_type == "client_document":
+            client_name = source.get("client_name", "unknown")
+            if client_name not in client_sources:
+                client_sources[client_name] = []
+            client_sources[client_name].append(source)
+        else:
+            course_sources.append(source)
+    
+    # Display course content sources
+    for idx, source in enumerate(course_sources[:3]):  # Only show top 3 sources
         module = source.get("module", "Unknown")
         source_file = os.path.basename(source.get("source", "Unknown"))
         console.print(f"[dim]• {module}: {source_file}[/dim]")
     
-    if len(sources) > 3:
-        console.print(f"[dim]+ {len(sources) - 3} more sources[/dim]")
+    if len(course_sources) > 3:
+        console.print(f"[dim]+ {len(course_sources) - 3} more course content sources[/dim]")
+    
+    # Display client document sources if any
+    for client_name, sources in client_sources.items():
+        # Group client sources by document category
+        category_grouped = {}
+        for source in sources:
+            category = source.get("document_category", "general")
+            if category not in category_grouped:
+                category_grouped[category] = []
+            category_grouped[category].append(source)
+        
+        console.print(f"[dim]• Client ({client_name}) information:[/dim]")
+        for category, category_sources in category_grouped.items():
+            # Collect content types across all sources in this category
+            all_content_types = set()
+            for src in category_sources:
+                # Content types are now stored as a comma-separated string
+                content_types_str = src.get("content_types", "general")
+                # Split by comma and strip whitespace
+                for content_type in [ct.strip() for ct in content_types_str.split(",")]:
+                    all_content_types.add(content_type)
+            
+            # Display category with content types and count
+            content_types_str = ", ".join(sorted(all_content_types))
+            source_files = [os.path.basename(src.get("source", "Unknown")) for src in category_sources]
+            unique_files = set(source_files)
+            if len(unique_files) <= 2:
+                files_str = ", ".join(unique_files)
+                console.print(f"[dim]  - {category} ({content_types_str}): {files_str}[/dim]")
+            else:
+                console.print(f"[dim]  - {category} ({content_types_str}): {len(unique_files)} files[/dim]")
+    
+    # Display resume sources if any, without showing details
+    if resume_sources:
+        console.print("[dim]• Personal information (resume)[/dim]")
 
 @app.command()
 def chat(
@@ -131,6 +185,7 @@ def chat(
                 
                 # Get response from RAG chain using invoke instead of __call__
                 response = rag_chain.invoke({"question": enhanced_query})
+                
                 formatted_response = format_response(response)
                 
                 # Extract information from this exchange and update profile
