@@ -17,6 +17,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.utils.vector_store import load_vector_store
 from src.utils.rag_chain import create_rag_chain, format_response
 from src.utils.user_profile import UserProfile
+from src.utils.greeting_generator import GreetingGenerator
 
 # Initialize rich console
 console = Console()
@@ -132,23 +133,25 @@ def chat(
     # Create RAG chain
     rag_chain = create_rag_chain(vector_store, model_name)
     
-    # Display welcome message with user profile info if available
-    welcome_message = "[bold]Your Business Coach[/bold]\n"
-    welcome_message += "I'm here to help you build and grow your business based on the Earnable course principles.\n"
+    # Initialize greeting generator
+    greeting_generator = GreetingGenerator(chat_logs_dir="./chat_logs", user_profile=user_profile)
     
-    # Add personalized info if we know something about the user
-    if user_profile.profile["business_info"]["services"]:
-        services = ", ".join(user_profile.profile["business_info"]["services"])
-        welcome_message += f"I see you offer {services}. That's great!\n"
+    # Generate personalized greeting
+    greeting_message = greeting_generator.generate_greeting()
+    quick_suggestions = greeting_generator.get_quick_start_suggestions()
     
-    if user_profile.profile["business_info"]["pricing"]:
-        welcome_message += "I remember we discussed your pricing before.\n"
+    # Display personalized welcome message
+    welcome_panel = f"[bold]Your Business Coach[/bold]\n\n{greeting_message}\n"
     
-    welcome_message += "Feel free to share your progress, ask questions, or discuss challenges.\n"
-    welcome_message += "Type [bold]'exit'[/bold], [bold]'quit'[/bold] to end, or [bold]'profile'[/bold] to see what I know about your business."
+    if quick_suggestions:
+        welcome_panel += "\n[bold]Quick start suggestions:[/bold]\n"
+        welcome_panel += "\n".join(quick_suggestions)
+        welcome_panel += "\n"
+    
+    welcome_panel += "\nType [bold]'exit'[/bold], [bold]'quit'[/bold] to end, or [bold]'profile'[/bold] to see what I know about your business."
     
     console.print(Panel.fit(
-        welcome_message,
+        welcome_panel,
         box=ROUNDED,
         border_style="blue",
         padding=(1, 2),
@@ -341,11 +344,28 @@ def autosave(
     user_profile = UserProfile(profile_path=profile_path)
     rag_chain = create_rag_chain(vector_store, model_name)
 
+    # Initialize greeting generator
+    greeting_generator = GreetingGenerator(chat_logs_dir=log_dir, user_profile=user_profile)
+    
+    # Generate personalized greeting
+    greeting_message = greeting_generator.generate_greeting()
+    quick_suggestions = greeting_generator.get_quick_start_suggestions()
+
     # Ensure log directory exists
     os.makedirs(log_dir, exist_ok=True)
 
+    # Display personalized welcome message
+    welcome_panel = f"[bold]Autosave Chat Mode[/bold]\n\n{greeting_message}\n"
+    
+    if quick_suggestions:
+        welcome_panel += "\n[bold]Quick start suggestions:[/bold]\n"
+        welcome_panel += "\n".join(quick_suggestions)
+        welcome_panel += "\n"
+    
+    welcome_panel += "\nEvery response will be saved as a markdown file in 'chat_logs'.\nType 'exit' or 'quit' to end."
+
     console.print(Panel.fit(
-        "[bold]Autosave Chat Mode[/bold]\nEvery response will be saved as a markdown file in 'chat_logs'.\nType 'exit' or 'quit' to end.",
+        welcome_panel,
         box=ROUNDED,
         border_style="blue",
         padding=(1, 2),

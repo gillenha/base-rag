@@ -4,6 +4,7 @@
 chroma_db/
 user_profile.json
 data/
+chat_logs/
 
 # Python
 __pycache__/

@@ -9,6 +9,9 @@ A Python-based RAG (Retrieval-Augmented Generation) pipeline that allows you to 
 - Provides a user-friendly terminal interface
 - Retrieves relevant information from your course content
 - Shows sources for each response
+- **Personalized greetings** that analyze your recent conversations and business profile
+- **Quick start suggestions** based on your conversation history and business context
+- **Autosave mode** for automatically saving conversations to markdown files
 
 ## Setup
 
@@ -62,6 +65,34 @@ python src/chat.py
 
 You can now have conversations with your course content by typing questions or prompts.
 
+### Chat Modes
+
+#### Standard Chat Mode
+```
+python src/chat.py chat
+```
+
+#### Autosave Mode
+Automatically saves every conversation to a timestamped markdown file:
+```
+python src/chat.py autosave
+```
+
+### Personalized Greetings
+
+The assistant now provides personalized greetings that:
+- Welcome you back with context about when you last chatted
+- Reference your recent conversation topics and themes
+- Mention your business services and recent pricing
+- Provide quick start suggestions based on your conversation history
+- Adapt the greeting based on whether you're a returning user or new
+
+The greeting system analyzes:
+- Recent chat logs from the past week
+- Your business profile information
+- Conversation themes and patterns
+- Time since your last session
+
 ## Advanced Options
 
 You can customize the chat experience with these options:
@@ -79,6 +110,16 @@ python src/chat.py --vector-store-path ./my_custom_db
 - Show the sources used for each response:
 ```
 python src/chat.py --show-sources
+```
+
+- Save conversation to a specific file:
+```
+python src/chat.py chat --save-to-file my_conversation.md
+```
+
+- Use autosave mode with custom log directory:
+```
+python src/chat.py autosave --log-dir ./my_chat_logs
 ```
 
 ## Adding Your Resume to the Vector Database
