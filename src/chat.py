@@ -97,9 +97,11 @@ def display_sources(sources):
 def chat(
     model_name: str = typer.Option("gpt-4", help="Name of the OpenAI model to use"),
     vector_store_path: str = typer.Option("./chroma_db", help="Path to the vector store"),
-    show_sources: bool = typer.Option(False, help="Show source documents used by the assistant"),
+    show_sources: bool = typer.Option(True, help="Show source documents used by the assistant"),
     profile_path: str = typer.Option("./user_profile.json", help="Path to user profile JSON file"),
     save_to_file: str = typer.Option(None, help="Save conversation to a Markdown file at the specified path"),
+    autosave: bool = typer.Option(True, help="Automatically save each response to timestamped files in chat_logs"),
+    use_context_aware_prompting: bool = typer.Option(True, help="Use context-aware prompting that adapts to query intent and content"),
 ):
     """
     Start a chat session with your course content.
@@ -131,7 +133,7 @@ def chat(
     user_profile = UserProfile(profile_path=profile_path)
     
     # Create RAG chain
-    rag_chain = create_rag_chain(vector_store, model_name)
+    rag_chain = create_rag_chain(vector_store, model_name, use_context_aware_prompting)
     
     # Initialize greeting generator
     greeting_generator = GreetingGenerator(chat_logs_dir="./chat_logs", user_profile=user_profile)
@@ -139,6 +141,10 @@ def chat(
     # Generate personalized greeting
     greeting_message = greeting_generator.generate_greeting()
     quick_suggestions = greeting_generator.get_quick_start_suggestions()
+    
+    # Ensure chat_logs directory exists if autosave is enabled
+    if autosave:
+        os.makedirs("./chat_logs", exist_ok=True)
     
     # Display personalized welcome message
     welcome_panel = f"[bold]Your Business Coach[/bold]\n\n{greeting_message}\n"
@@ -148,7 +154,8 @@ def chat(
         welcome_panel += "\n".join(quick_suggestions)
         welcome_panel += "\n"
     
-    welcome_panel += "\nType [bold]'exit'[/bold], [bold]'quit'[/bold] to end, or [bold]'profile'[/bold] to see what I know about your business."
+    autosave_note = "\nResponses will be automatically saved to chat_logs/" if autosave else ""
+    welcome_panel += f"{autosave_note}\nType [bold]'exit'[/bold], [bold]'quit'[/bold] to end, or [bold]'profile'[/bold] to see what I know about your business."
     
     console.print(Panel.fit(
         welcome_panel,
@@ -307,6 +314,80 @@ def chat(
             if show_sources:
                 display_sources(formatted_response["sources"])
             
+            # Autosave individual response if enabled
+            if autosave:
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                filename = f"{timestamp}.md"
+                filepath = os.path.join("./chat_logs", filename)
+                
+                with open(filepath, "w", encoding="utf-8") as f:
+                    f.write(f"# Earnable Coach Response\n\n")
+                    f.write(f"**Date:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
+                    f.write(f"## You\n\n{query}\n\n")
+                    f.write(f"## Coach\n\n{formatted_response['answer'].strip()}\n\n")
+                    
+                    # Always save sources in autosave mode
+                    if formatted_response["sources"]:
+                        f.write("## Sources\n\n")
+                        
+                        # Group and format sources
+                        course_sources = []
+                        resume_sources = []
+                        client_sources = {}
+                        
+                        for source in formatted_response["sources"]:
+                            doc_type = source.get("document_type")
+                            if doc_type == "resume":
+                                resume_sources.append(source)
+                            elif doc_type == "client_document":
+                                client_name = source.get("client_name", "unknown")
+                                if client_name not in client_sources:
+                                    client_sources[client_name] = []
+                                client_sources[client_name].append(source)
+                            else:
+                                course_sources.append(source)
+                        
+                        # Write course content sources
+                        for idx, source in enumerate(course_sources[:5]):  # Show more sources in autosave
+                            module = source.get("module", "Unknown")
+                            source_file = os.path.basename(source.get("source", "Unknown"))
+                            f.write(f"- **{module}**: {source_file}\n")
+                        
+                        if len(course_sources) > 5:
+                            f.write(f"- *Plus {len(course_sources) - 5} more course content sources*\n")
+                        
+                        # Write client document sources
+                        for client_name, sources in client_sources.items():
+                            category_grouped = {}
+                            for source in sources:
+                                category = source.get("document_category", "general")
+                                if category not in category_grouped:
+                                    category_grouped[category] = []
+                                category_grouped[category].append(source)
+                            
+                            f.write(f"- **Client ({client_name}) information:**\n")
+                            for category, category_sources in category_grouped.items():
+                                all_content_types = set()
+                                for src in category_sources:
+                                    content_types_str = src.get("content_types", "general")
+                                    for content_type in [ct.strip() for ct in content_types_str.split(",")]:
+                                        all_content_types.add(content_type)
+                                
+                                content_types_str = ", ".join(sorted(all_content_types))
+                                source_files = [os.path.basename(src.get("source", "Unknown")) for src in category_sources]
+                                unique_files = set(source_files)
+                                if len(unique_files) <= 2:
+                                    files_str = ", ".join(unique_files)
+                                    f.write(f"  - {category} ({content_types_str}): {files_str}\n")
+                                else:
+                                    f.write(f"  - {category} ({content_types_str}): {len(unique_files)} files\n")
+                        
+                        # Write resume sources if any
+                        if resume_sources:
+                            f.write("- **Personal information** (resume)\n")
+                
+                console.print(f"[dim]Response saved to {filepath}[/dim]")
+            
         except Exception as e:
             console.print(f"[bold red]Error:[/bold red] {e}")
             
@@ -314,6 +395,20 @@ def chat(
             if md_file:
                 md_file.write(f"\n### Error\n\n```\n{e}\n```\n")
                 md_file.flush()
+            
+            # Save error in autosave mode too
+            if autosave:
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                filename = f"{timestamp}_error.md"
+                filepath = os.path.join("./chat_logs", filename)
+                
+                with open(filepath, "w", encoding="utf-8") as f:
+                    f.write(f"# Earnable Coach Error\n\n")
+                    f.write(f"**Date:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
+                    f.write(f"## You\n\n{query}\n\n")
+                    f.write(f"## Error\n\n```\n{e}\n```\n")
+                
+                console.print(f"[dim]Error saved to {filepath}[/dim]")
 
 @app.command()
 def autosave(
@@ -342,7 +437,7 @@ def autosave(
         console.print(f"[bold red]Error loading vector store:[/bold red] {e}")
         return
     user_profile = UserProfile(profile_path=profile_path)
-    rag_chain = create_rag_chain(vector_store, model_name)
+    rag_chain = create_rag_chain(vector_store, model_name, use_context_aware_prompting)
 
     # Initialize greeting generator
     greeting_generator = GreetingGenerator(chat_logs_dir=log_dir, user_profile=user_profile)

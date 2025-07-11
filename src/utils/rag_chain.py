@@ -1,20 +1,25 @@
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from langchain_openai import ChatOpenAI
 from langchain.chains import ConversationalRetrievalChain
+from langchain.chains.base import Chain
 from langchain.memory import ConversationBufferMemory
 from langchain.prompts import PromptTemplate
 from langchain.prompts.chat import SystemMessagePromptTemplate, HumanMessagePromptTemplate, ChatPromptTemplate
+from langchain.schema.runnable import Runnable
+from .context_aware_prompting import create_ramit_prompt_generator, UserContext
+from .coaching_context_injector import create_coaching_context_injector
 
-def create_rag_chain(vector_store, model_name="gpt-3.5-turbo"):
+def create_rag_chain(vector_store, model_name="gpt-3.5-turbo", use_context_aware_prompting=True):
     """
-    Creates a RAG chain that combines retrieval and generation.
+    Creates a RAG chain that combines retrieval and generation with context-aware prompting.
     
     Args:
         vector_store: Vector store for retrieval
         model_name: Name of the LLM model to use
+        use_context_aware_prompting: Whether to use dynamic prompting based on query context
         
     Returns:
-        A RAG chain
+        A RAG chain with context-aware prompting capabilities
     """
     # Initialize the OpenAI LLM
     llm = ChatOpenAI(
@@ -30,54 +35,224 @@ def create_rag_chain(vector_store, model_name="gpt-3.5-turbo"):
                              # This fixes the "Got multiple output keys" error
     )
     
-    # Create a better prompt template for the system
-    system_template = """You are a knowledge repository trained on Ramit Sethi's Earnable course materials. Your job is to provide accurate, specific information from the course content without coaching, encouragement, or personal commentary.
+    # Initialize context-aware prompting components if enabled
+    if use_context_aware_prompting:
+        prompt_generator = create_ramit_prompt_generator()
+        context_injector = create_coaching_context_injector()
+        print("Using context-aware prompting for dynamic response adaptation")
+        
+        # Create a simple template for context-aware prompting
+        # The actual prompt will be generated dynamically by the prompt_generator
+        system_template = "{context_aware_prompt}"
+        chat_prompt = PromptTemplate(
+            input_variables=["context_aware_prompt"],
+            template=system_template
+        )
+    else:
+        # Fallback to static prompt template
+        system_template = """You are a knowledge repository specifically trained on Ramit Sethi's Earnable course materials. Your job is to provide Ramit's specific frameworks, methodologies, and contrarian approaches rather than generic business advice.
 
-Answer questions directly using the provided context. State facts, frameworks, and specific steps from the course materials. Do not add motivational language, congratulations, or emotional support.
+When answering questions, prioritize content that contains:
+- Ramit's specific frameworks (profit playbook, winning offers, authentic selling, customer research)
+- His contrarian takes that challenge conventional wisdom
+- Tactical, step-by-step processes from the course
+- Real case studies and student examples
+- Specific numbers, metrics, and testing approaches
+- Ramit's distinctive mindset and psychology content
 
-When answering:
-- Cite specific modules, documents, or sections when possible
-- Provide exact processes, frameworks, or strategies from the course
-- Give direct answers without preamble or encouragement
-- If information isn't in the provided context, state that clearly
-- Don't ask follow-up questions unless clarification is needed to answer accurately
+## Response Guidelines:
+- Use Ramit's terminology and specific frameworks when available
+- Reference his contrarian approaches when they apply
+- Include tactical steps and exact processes
+- Cite specific modules, documents, or sections
+- Highlight when content contradicts conventional business advice
+- Present information as Ramit teaches it, not as generic business content
 
 ## Context Handling Instructions:
-1. For course content (document_type is not specified), provide information directly from the Earnable materials.
-2. For resume information (document_type = "resume"), only reference when directly relevant to the specific question asked.
-3. For client information (document_type = "client_document"), provide specific details about that client project when asked.
+1. For course content (document_type is not specified), prioritize content with high ramit_framework_score, ramit_contrarian_score, or ramit_tactical_score
+2. For resume information (document_type = "resume"), only reference when directly relevant
+3. For client information (document_type = "client_document"), provide specific details about that client project when asked
 
-Your responses should be:
-- Direct and factual
-- Free of motivational language
-- Focused on course-specific information
-- Clear about sources and references
+Look for these Ramit-specific content indicators in the context:
+- ramit_primary_type: The main type of Ramit content (framework, contrarian, tactical, etc.)
+- ramit_frameworks: Specific frameworks mentioned (customer_research, winning_offer, authentic_selling, etc.)
+- ramit_signatures: Key phrases that indicate Ramit's specific approach
+- ramit_contrarian_score: Higher scores indicate content that challenges conventional wisdom
 
 Context: {context}
 ----------------
-Chat History: {chat_history}
-"""
+Chat History: {chat_history}"""
+        
+        system_message_prompt = SystemMessagePromptTemplate.from_template(system_template)
+        human_template = "{question}"
+        human_message_prompt = HumanMessagePromptTemplate.from_template(human_template)
+        
+        chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt, human_message_prompt])
     
-    system_message_prompt = SystemMessagePromptTemplate.from_template(system_template)
-    human_template = "{question}"
-    human_message_prompt = HumanMessagePromptTemplate.from_template(human_template)
-    
-    chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt, human_message_prompt])
-    
-    # Create RAG chain with custom prompt
-    rag_chain = ConversationalRetrievalChain.from_llm(
-        llm=llm,
-        retriever=vector_store.as_retriever(
+    # Create enhanced retriever with Ramit-specific logic
+    try:
+        from .ramit_retriever import create_ramit_enhanced_retriever
+        retriever = create_ramit_enhanced_retriever(vector_store, {"k": 5})
+        print("Using Ramit-enhanced retriever for better semantic matching")
+    except ImportError:
+        print("Ramit-enhanced retriever not available, using standard retriever")
+        retriever = vector_store.as_retriever(
             search_type="similarity",
             search_kwargs={"k": 5}
-        ),
-        memory=memory,
-        return_source_documents=True,
-        combine_docs_chain_kwargs={"prompt": chat_prompt},
-        verbose=True
-    )
+        )
+    
+    # Create RAG chain with custom prompt and enhanced retriever
+    if use_context_aware_prompting:
+        # Create a custom RAG chain that generates prompts dynamically
+        rag_chain = ContextAwareRAGChain(
+            llm=llm,
+            retriever=retriever,
+            memory=memory,
+            prompt_generator=prompt_generator,
+            context_injector=context_injector,
+            return_source_documents=True,
+            verbose=True
+        )
+    else:
+        # Use standard ConversationalRetrievalChain
+        rag_chain = ConversationalRetrievalChain.from_llm(
+            llm=llm,
+            retriever=retriever,
+            memory=memory,
+            return_source_documents=True,
+            combine_docs_chain_kwargs={"prompt": chat_prompt},
+            verbose=True
+        )
     
     return rag_chain
+
+class ContextAwareRAGChain:
+    """
+    Custom RAG chain that generates context-aware prompts dynamically based on
+    query intent, retrieved content, and user context.
+    """
+    
+    def __init__(self, llm, retriever, memory, prompt_generator, context_injector, 
+                 return_source_documents=True, verbose=False):
+        self.llm = llm
+        self.retriever = retriever
+        self.memory = memory
+        self.prompt_generator = prompt_generator
+        self.context_injector = context_injector
+        self.return_source_documents = return_source_documents
+        self.verbose = verbose
+    
+    @property
+    def input_keys(self) -> List[str]:
+        """Input keys for the chain"""
+        return ["question"]
+    
+    @property
+    def output_keys(self) -> List[str]:
+        """Output keys for the chain"""
+        return ["answer", "source_documents"] if self.return_source_documents else ["answer"]
+    
+    def _call(self, inputs: Dict[str, Any]) -> Dict[str, Any]:
+        """Internal call method required by LangChain Chain interface"""
+        return self._process_query(inputs)
+    
+    def invoke(self, input: Dict[str, Any], config=None, **kwargs) -> Dict[str, Any]:
+        """LangChain Runnable interface method"""
+        return self._process_query(input)
+    
+    def __call__(self, inputs: Dict[str, Any]) -> Dict[str, Any]:
+        """Process a query with context-aware prompting"""
+        return self._process_query(inputs)
+    
+    def _process_query(self, inputs: Dict[str, Any]) -> Dict[str, Any]:
+        """Core query processing logic"""
+        query = inputs.get("question", "")
+        chat_history = self._get_chat_history()
+        
+        # Retrieve relevant documents
+        retrieved_docs = self.retriever.get_relevant_documents(query)
+        
+        # Convert documents to source format for prompt generation
+        sources = []
+        for doc in retrieved_docs:
+            source = {
+                "content": doc.page_content,
+                "ramit_type": doc.metadata.get("ramit_primary_type", "general"),
+                "ramit_frameworks": doc.metadata.get("ramit_frameworks", "").split(",") if doc.metadata.get("ramit_frameworks") else [],
+                "ramit_scores": {
+                    "framework": doc.metadata.get("ramit_framework_score", 0),
+                    "contrarian": doc.metadata.get("ramit_contrarian_score", 0),
+                    "tactical": doc.metadata.get("ramit_tactical_score", 0),
+                    "case_study": doc.metadata.get("ramit_case_study_score", 0)
+                }
+            }
+            sources.append(source)
+        
+        # Load user context from profile and chat history
+        try:
+            user_context_data = self.context_injector.analyze_user_context()
+            business_progress, recent_sessions = user_context_data
+            
+            user_context = UserContext(
+                business_type=None,  # Could be extracted from profile
+                experience_level=business_progress.current_stage,
+                previous_topics=[topic for session in recent_sessions[:3] for topic in session.topics_discussed],
+                current_challenges=business_progress.ongoing_challenges,
+                progress_indicators=business_progress.recent_wins
+            )
+        except Exception as e:
+            if self.verbose:
+                print(f"Warning: Could not load user context: {e}")
+            user_context = None
+        
+        # Generate context-aware prompt
+        context_aware_prompt = self.prompt_generator.generate_context_aware_prompt(
+            query=query,
+            sources=sources,
+            user_context=user_context,
+            chat_history=chat_history
+        )
+        
+        if self.verbose:
+            print(f"Generated context-aware prompt for query intent and content type")
+        
+        # Generate response using the dynamic prompt
+        response = self.llm.predict(context_aware_prompt)
+        
+        # Store in memory
+        self.memory.save_context(
+            {"input": query},
+            {"answer": response}
+        )
+        
+        # Format response
+        result = {
+            "question": query,
+            "answer": response,
+            "chat_history": self.memory.chat_memory.messages
+        }
+        
+        if self.return_source_documents:
+            result["source_documents"] = retrieved_docs
+        
+        return result
+    
+    def _get_chat_history(self) -> str:
+        """Get formatted chat history string"""
+        messages = self.memory.chat_memory.messages
+        if not messages:
+            return ""
+        
+        # Format recent messages (last 4 for context)
+        recent_messages = messages[-4:] if len(messages) > 4 else messages
+        formatted_history = []
+        
+        for message in recent_messages:
+            if hasattr(message, 'content'):
+                role = "Human" if message.type == "human" else "Assistant"
+                formatted_history.append(f"{role}: {message.content}")
+        
+        return "\n".join(formatted_history)
 
 def format_response(response: Dict[str, Any]) -> Dict[str, Any]:
     """
@@ -100,6 +275,26 @@ def format_response(response: Dict[str, Any]) -> Dict[str, Any]:
             "page": doc.metadata.get("page", 0),
             "document_type": doc.metadata.get("document_type", "course_content")
         }
+        
+        # Add Ramit-specific metadata if available
+        ramit_primary_type = doc.metadata.get("ramit_primary_type")
+        if ramit_primary_type and ramit_primary_type != "general":
+            source["ramit_type"] = ramit_primary_type
+            
+            # Convert string back to list for display
+            frameworks_str = doc.metadata.get("ramit_frameworks", "")
+            source["ramit_frameworks"] = frameworks_str.split(",") if frameworks_str else []
+            
+            signatures_str = doc.metadata.get("ramit_signatures", "")
+            source["ramit_signatures"] = signatures_str.split(",") if signatures_str else []
+            
+            # Add scores for debugging/display
+            source["ramit_scores"] = {
+                "contrarian": doc.metadata.get("ramit_contrarian_score", 0),
+                "tactical": doc.metadata.get("ramit_tactical_score", 0),
+                "framework": doc.metadata.get("ramit_framework_score", 0),
+                "case_study": doc.metadata.get("ramit_case_study_score", 0)
+            }
         
         # Add client-specific metadata if available
         if source["document_type"] == "client_document":

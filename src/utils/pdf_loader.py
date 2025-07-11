@@ -44,25 +44,66 @@ def load_pdfs_from_directory(directory_path: str) -> List[Dict[str, Any]]:
     
     return documents
 
-def split_documents(documents: List[Dict[str, Any]], chunk_size: int = 1000, chunk_overlap: int = 100) -> List[Dict[str, Any]]:
+def split_documents(documents: List[Dict[str, Any]], 
+                   chunk_size: int = 1000, 
+                   chunk_overlap: int = 100, 
+                   enhance_with_ramit_analysis: bool = True,
+                   use_semantic_chunking: bool = True) -> List[Dict[str, Any]]:
     """
-    Splits documents into smaller chunks for better processing.
+    Splits documents into smaller chunks for better processing and optionally enhances
+    with Ramit-specific semantic analysis.
     
     Args:
         documents: List of documents to split
-        chunk_size: Size of each chunk
+        chunk_size: Size of each chunk (for traditional chunking)
         chunk_overlap: Overlap between chunks
+        enhance_with_ramit_analysis: Whether to add Ramit-specific metadata
+        use_semantic_chunking: Whether to use semantic-aware chunking
         
     Returns:
-        List of document chunks
+        List of document chunks with enhanced metadata
     """
-    text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=chunk_size,
-        chunk_overlap=chunk_overlap,
-        length_function=len,
-    )
     
-    chunks = text_splitter.split_documents(documents)
-    print(f"Split {len(documents)} documents into {len(chunks)} chunks")
+    if use_semantic_chunking:
+        print("Using semantic-aware chunking to preserve framework coherence...")
+        try:
+            from .semantic_chunker import semantic_split_documents
+            chunks = semantic_split_documents(
+                documents, 
+                macro_chunk_tokens=chunk_size * 2,  # Larger macro chunks in tokens
+                micro_chunk_tokens=chunk_size,     # Micro chunks in tokens
+                overlap_tokens=chunk_overlap       # Overlap in tokens
+            )
+            print(f"Semantic chunking: {len(documents)} documents → {len(chunks)} semantic chunks")
+        except ImportError as e:
+            print(f"Warning: Could not import semantic chunker: {e}")
+            print("Falling back to traditional chunking...")
+            use_semantic_chunking = False
+        except Exception as e:
+            print(f"Warning: Error during semantic chunking: {e}")
+            print("Falling back to traditional chunking...")
+            use_semantic_chunking = False
+    
+    if not use_semantic_chunking:
+        # Fall back to traditional chunking
+        text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=chunk_size,
+            chunk_overlap=chunk_overlap,
+            length_function=len,
+        )
+        
+        chunks = text_splitter.split_documents(documents)
+        print(f"Traditional chunking: {len(documents)} documents → {len(chunks)} chunks")
+    
+    if enhance_with_ramit_analysis:
+        print("Enhancing chunks with Ramit-specific semantic analysis...")
+        try:
+            from .ramit_analyzer import enhance_document_metadata
+            chunks = enhance_document_metadata(chunks)
+            print(f"Enhanced {len(chunks)} chunks with Ramit-specific metadata")
+        except ImportError as e:
+            print(f"Warning: Could not import Ramit analyzer: {e}")
+        except Exception as e:
+            print(f"Warning: Error during Ramit analysis: {e}")
     
     return chunks 
