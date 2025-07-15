@@ -3,12 +3,13 @@ from typing import List, Dict, Any
 from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
-def load_pdfs_from_directory(directory_path: str) -> List[Dict[str, Any]]:
+def load_pdfs_from_directory(directory_path: str, classify_documents: bool = True) -> List[Dict[str, Any]]:
     """
     Recursively loads all PDF files from a directory and its subdirectories.
     
     Args:
         directory_path: Path to the directory containing PDF files
+        classify_documents: Whether to classify documents for context-aware processing
         
     Returns:
         List of document chunks with metadata
@@ -41,6 +42,45 @@ def load_pdfs_from_directory(directory_path: str) -> List[Dict[str, Any]]:
                     print(f"Loaded: {file_path}")
                 except Exception as e:
                     print(f"Error loading {file}: {e}")
+    
+    # Classify documents if requested
+    if classify_documents and documents:
+        print("Classifying documents for context-aware processing...")
+        try:
+            from .document_classifier import classify_documents, add_document_classification_metadata
+            
+            # Classify all documents
+            classifications = classify_documents(documents)
+            
+            # Add classification metadata to each document
+            for doc, classification in zip(documents, classifications):
+                add_document_classification_metadata(doc, classification)
+            
+            print(f"Classified {len(documents)} documents with context metadata")
+            
+            # Log classification summary
+            source_types = {}
+            teaching_contexts = {}
+            avg_authority = 0
+            
+            for classification in classifications:
+                source_type = classification.document_source_type.value
+                teaching_context = classification.teaching_context.value
+                
+                source_types[source_type] = source_types.get(source_type, 0) + 1
+                teaching_contexts[teaching_context] = teaching_contexts.get(teaching_context, 0) + 1
+                avg_authority += classification.authority_score
+            
+            avg_authority /= len(classifications)
+            
+            print(f"Document Source Types: {source_types}")
+            print(f"Teaching Contexts: {teaching_contexts}")
+            print(f"Average Authority Score: {avg_authority:.2f}")
+            
+        except ImportError as e:
+            print(f"Warning: Could not import document classifier: {e}")
+        except Exception as e:
+            print(f"Warning: Error during document classification: {e}")
     
     return documents
 

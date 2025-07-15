@@ -18,6 +18,9 @@ The system consists of several key components:
 - **RAG Chain**: LangChain-based conversational retrieval system with dynamic prompting (`src/utils/rag_chain.py`)
 - **Chat Interface**: Rich terminal interface with markdown rendering and source display (`src/chat.py`)
 - **User Profile System**: Tracks and learns user business information across conversations (`src/utils/user_profile.py`)
+- **Document Classification**: `src/utils/document_classifier.py` intelligently categorizes content for enhanced retrieval
+- **Ramit Analyzer**: `src/utils/ramit_analyzer.py` enhances content with Ramit-specific coaching patterns
+- **Enhanced Retrieval**: `src/utils/ramit_retriever.py` provides context-aware content retrieval with Ramit-specific scoring
 
 ## Key Commands
 
@@ -141,27 +144,115 @@ python src/chat.py chat --no-context-aware-prompting
 
 ## Testing and Development
 
-### Running Tests
+### Core Testing Commands
 ```bash
-# Run greeting functionality test
-python test_greeting.py
+# Run comprehensive test suite (all tests)
+python test_suite/run_all_tests.py --all
 
-# Test environment setup (uses virtual environment in test_env/)
+# Run specific test categories
+python test_suite/run_all_tests.py --comprehensive --regression
+python test_suite/run_all_tests.py --categories framework tactical
+
+# Quick validation during development
+python test_suite/run_all_tests.py --quick
+
+# Individual test scripts
+python test_greeting.py
+python test_enhanced_rag.py
+python test_semantic_chunking.py
+python test_context_aware_prompting.py
+python test_document_classification.py
+python test_retrieval_quality.py
+python test_chat_scenarios.py
+```
+
+### Quality and Performance Testing
+```bash
+# Comprehensive quality validation
+python test_suite/comprehensive_test_suite.py
+
+# Multi-turn conversation testing
+python test_suite/multi_turn_testing.py
+
+# Regression testing
+python test_suite/regression/regression_tests.py
+
+# Before/after comparison
+python test_suite/comparison/before_after_comparison.py
+```
+
+### Environment Setup
+```bash
+# Create virtual environment for testing
 python -m venv test_env
 source test_env/bin/activate  # On Windows: test_env\Scripts\activate
 pip install -r requirements.txt
+
+# Environment variables required
+export OPENAI_API_KEY=your_api_key_here
+export COURSE_CONTENT_DIR="./01 playbooks"
 ```
 
-### Common Development Tasks
+### Development Debugging
 ```bash
-# Activate virtual environment (if using test_env)
-source test_env/bin/activate
-
 # Debug date parsing issues
 python debug_dates.py
 
 # Test specific functionality
 python test_greeting.py
+
+# Check system status
+python -c "
+import os
+print('API Key:', 'SET' if os.getenv('OPENAI_API_KEY') else 'MISSING')
+print('Vector Store:', 'EXISTS' if os.path.exists('./chroma_db') else 'MISSING')
+"
+```
+
+## Comprehensive Test Suite
+
+The system includes a sophisticated testing framework located in `test_suite/` that provides multi-dimensional quality assessment:
+
+### Test Suite Structure
+- **`test_suite/run_all_tests.py`**: Main test orchestrator that runs all test components
+- **`test_suite/comprehensive_test_suite.py`**: End-to-end quality validation across all query types
+- **`test_suite/multi_turn_testing.py`**: Validates conversation flow and context retention
+- **`test_suite/regression/regression_tests.py`**: Ensures system performance and functionality stability
+- **`test_suite/comparison/before_after_comparison.py`**: Quantifies improvements from enhancements
+- **`test_suite/monitoring/quality_monitor.py`**: Continuous quality tracking for production
+- **`test_suite/metrics/quality_metrics.py`**: Response quality analysis system
+
+### Quality Metrics
+The test suite evaluates responses across five key dimensions:
+- **Ramit Authenticity (25% weight)**: Captures Ramit's voice and coaching style
+- **Framework Coherence (25% weight)**: Accurate representation of methodologies
+- **Actionability (20% weight)**: Implementable guidance and specific steps
+- **Source Accuracy (15% weight)**: How well responses are supported by retrieved content
+- **Coaching Effectiveness (15% weight)**: Ability to guide user thinking forward
+
+### Test Categories
+- **Framework Queries**: Tests understanding of Ramit's specific methodologies
+- **Tactical Queries**: Tests actionable guidance and implementation steps
+- **Mindset Queries**: Tests psychology and invisible scripts coaching
+- **Contrarian Queries**: Tests ability to challenge conventional wisdom
+- **First Sale Queries**: Tests specific guidance for getting initial customers
+- **Pricing Queries**: Tests value positioning and pricing psychology
+
+### Usage Examples
+```bash
+# Run all tests with comprehensive reporting
+python test_suite/run_all_tests.py --all
+
+# Run specific test categories
+python test_suite/run_all_tests.py --categories framework tactical mindset
+
+# Quick validation (subset of tests)
+python test_suite/run_all_tests.py --quick
+
+# Individual test components
+python test_suite/comprehensive_test_suite.py
+python test_suite/multi_turn_testing.py
+python test_suite/regression/regression_tests.py
 ```
 
 ## Architecture Deep Dive
@@ -228,3 +319,37 @@ python test_greeting.py
 - Vector store persistence handled automatically by ChromaDB
 - Python 3.8+ required with virtual environment recommended
 - All chat responses automatically include source citations for transparency
+
+## Current Development Status
+
+The system includes several recent enhancements currently in development:
+
+### Recent Improvements
+- **Enhanced Document Processing**: Improved PDF loading and chunking with better error handling
+- **Advanced Retrieval**: Context-aware retrieval system with Ramit-specific scoring algorithms
+- **Document Classification**: Intelligent content categorization for better retrieval targeting
+- **Comprehensive Testing**: Multi-dimensional quality assessment framework
+- **Performance Monitoring**: Quality tracking and regression testing capabilities
+
+### Active Development Areas
+- **Semantic Chunking**: Framework-aware content segmentation that preserves conceptual coherence
+- **Ramit Enhancement**: Content analysis and tagging with Ramit-specific coaching patterns
+- **Context-Aware Prompting**: Dynamic prompt adaptation based on query intent and content type
+- **Retrieval Quality**: Advanced retrieval quality assessment and optimization
+
+### File Status
+Recent modifications include:
+- `src/index_documents.py`: Enhanced document processing pipeline
+- `src/utils/pdf_loader.py`: Improved PDF loading with better error handling  
+- `src/utils/ramit_retriever.py`: Context-aware retrieval with Ramit-specific scoring
+- `src/utils/document_classifier.py`: New document classification system
+- Various test files for quality validation and regression testing
+
+### Dependencies
+Core dependencies include:
+- `langchain>=0.0.267` with OpenAI and ChromaDB integrations
+- `chromadb>=0.4.14` for vector storage and retrieval
+- `rich>=13.5.2` for terminal interface formatting
+- `typer>=0.9.0` for CLI interface
+- `sentence-transformers>=2.2.2` for embeddings
+- `pypdf>=3.15.1` for PDF document processing

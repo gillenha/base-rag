@@ -21,9 +21,9 @@ def main():
     
     print(f"Starting to index documents from {course_content_dir}")
     
-    # Load PDF documents
+    # Load PDF documents with classification
     print("Loading PDF documents...")
-    documents = load_pdfs_from_directory(course_content_dir)
+    documents = load_pdfs_from_directory(course_content_dir, classify_documents=True)
     
     if not documents:
         print("No documents found. Please check the directory path.")
