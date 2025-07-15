@@ -47,7 +47,7 @@ def load_pdfs_from_directory(directory_path: str, classify_documents: bool = Tru
     if classify_documents and documents:
         print("Classifying documents for context-aware processing...")
         try:
-            from .document_classifier import classify_documents, add_document_classification_metadata
+            from .configurable_document_classifier import classify_documents, add_document_classification_metadata
             
             # Classify all documents
             classifications = classify_documents(documents)
@@ -87,18 +87,20 @@ def load_pdfs_from_directory(directory_path: str, classify_documents: bool = Tru
 def split_documents(documents: List[Dict[str, Any]], 
                    chunk_size: int = 1000, 
                    chunk_overlap: int = 100, 
-                   enhance_with_ramit_analysis: bool = True,
-                   use_semantic_chunking: bool = True) -> List[Dict[str, Any]]:
+                   enhance_with_expert_analysis: bool = True,
+                   use_semantic_chunking: bool = True,
+                   expert_config_path: str = None) -> List[Dict[str, Any]]:
     """
     Splits documents into smaller chunks for better processing and optionally enhances
-    with Ramit-specific semantic analysis.
+    with expert-specific semantic analysis.
     
     Args:
         documents: List of documents to split
         chunk_size: Size of each chunk (for traditional chunking)
         chunk_overlap: Overlap between chunks
-        enhance_with_ramit_analysis: Whether to add Ramit-specific metadata
+        enhance_with_expert_analysis: Whether to add expert-specific metadata
         use_semantic_chunking: Whether to use semantic-aware chunking
+        expert_config_path: Path to expert configuration file
         
     Returns:
         List of document chunks with enhanced metadata
@@ -135,15 +137,15 @@ def split_documents(documents: List[Dict[str, Any]],
         chunks = text_splitter.split_documents(documents)
         print(f"Traditional chunking: {len(documents)} documents → {len(chunks)} chunks")
     
-    if enhance_with_ramit_analysis:
-        print("Enhancing chunks with Ramit-specific semantic analysis...")
+    if enhance_with_expert_analysis:
+        print("Enhancing chunks with expert-specific semantic analysis...")
         try:
-            from .ramit_analyzer import enhance_document_metadata
-            chunks = enhance_document_metadata(chunks)
-            print(f"Enhanced {len(chunks)} chunks with Ramit-specific metadata")
+            from .expert_analyzer import enhance_document_metadata
+            chunks = enhance_document_metadata(chunks, expert_config_path)
+            print(f"Enhanced {len(chunks)} chunks with expert-specific metadata")
         except ImportError as e:
-            print(f"Warning: Could not import Ramit analyzer: {e}")
+            print(f"Warning: Could not import expert analyzer: {e}")
         except Exception as e:
-            print(f"Warning: Error during Ramit analysis: {e}")
+            print(f"Warning: Error during expert analysis: {e}")
     
     return chunks 

@@ -1,0 +1,448 @@
+# Ramit Sethi - Dream Job Course Configuration
+# Specialized configuration for Ramit Sethi's Dream Job career course
+
+expert_profile:
+  name: "Ramit Sethi"
+  teaching_style: "Direct, strategic, psychology-focused with systematic frameworks"
+  expertise_domain: "Career Development and Negotiation"
+  signature_approach: "Psychology-based career advancement with strategic job search frameworks"
+  
+content_types:
+  framework:
+    description: "Ramit's career advancement methodologies"
+    weight: 1.0
+    
+  mindset:
+    description: "Career psychology, confidence, and mental models"
+    weight: 0.9
+    
+  tactical:
+    description: "Interview scripts, negotiation tactics, and implementation"
+    weight: 0.8
+    
+  contrarian:
+    description: "Challenges conventional career advice"
+    weight: 0.9
+    
+  case_study:
+    description: "Student career transformations and success stories"
+    weight: 0.8
+    
+  testing:
+    description: "Testing job market strategies and validation"
+    weight: 0.7
+    
+  story:
+    description: "Career stories and behind-the-scenes insights"
+    weight: 0.6
+    
+  numbers:
+    description: "Salary data, negotiation results, and career metrics"
+    weight: 0.8
+
+signature_phrases:
+  framework_indicators:
+    - phrase: "dream job system"
+      content_type: "framework"
+      weight: 0.9
+    - phrase: "career strategy"
+      content_type: "framework"
+      weight: 0.8
+    - phrase: "job search framework"
+      content_type: "framework"
+      weight: 0.8
+    - phrase: "interview mastery"
+      content_type: "framework"
+      weight: 0.8
+    - phrase: "negotiation framework"
+      content_type: "framework"
+      weight: 0.9
+    - phrase: "career psychology"
+      content_type: "mindset"
+      weight: 0.8
+    - phrase: "invisible scripts about careers"
+      content_type: "mindset"
+      weight: 0.9
+    - phrase: "salary negotiation"
+      content_type: "tactical"
+      weight: 0.8
+      
+  mindset_indicators:
+    - phrase: "you deserve better"
+      content_type: "mindset"
+      weight: 0.8
+    - phrase: "stop being grateful for scraps"
+      content_type: "contrarian"
+      weight: 0.9
+    - phrase: "career confidence"
+      content_type: "mindset"
+      weight: 0.8
+    - phrase: "top performer mindset"
+      content_type: "mindset"
+      weight: 0.8
+      
+  contrarian_indicators:
+    - phrase: "most people hate their jobs"
+      content_type: "contrarian"
+      weight: 0.8
+    - phrase: "typical career advice"
+      content_type: "contrarian"
+      weight: 0.7
+    - phrase: "what hr doesn't tell you"
+      content_type: "contrarian"
+      weight: 0.9
+    - phrase: "job search myth"
+      content_type: "contrarian"
+      weight: 0.8
+    - phrase: "career conventional wisdom"
+      content_type: "contrarian"
+      weight: 0.8
+      
+  tactical_indicators:
+    - phrase: "exact email script"
+      content_type: "tactical"
+      weight: 0.8
+    - phrase: "interview questions to ask"
+      content_type: "tactical"
+      weight: 0.8
+    - phrase: "negotiation script"
+      content_type: "tactical"
+      weight: 0.9
+    - phrase: "networking strategy"
+      content_type: "tactical"
+      weight: 0.7
+    - phrase: "resume optimization"
+      content_type: "tactical"
+      weight: 0.7
+      
+  case_study_indicators:
+    - phrase: "student success story"
+      content_type: "case_study"
+      weight: 0.9
+    - phrase: "career transformation"
+      content_type: "case_study"
+      weight: 0.9
+    - phrase: "salary increase story"
+      content_type: "case_study"
+      weight: 0.8
+    - phrase: "interview success"
+      content_type: "case_study"
+      weight: 0.8
+
+frameworks:
+  dream_job_system:
+    keywords:
+      - "dream job"
+      - "job search strategy"
+      - "career planning"
+      - "industry research"
+      - "company research"
+      - "career positioning"
+    description: "Systematic approach to landing dream jobs"
+    
+  interview_mastery:
+    keywords:
+      - "interview preparation"
+      - "behavioral questions"
+      - "interview storytelling"
+      - "interview confidence"
+      - "interview follow-up"
+      - "interview psychology"
+    description: "Framework for mastering job interviews"
+    
+  salary_negotiation:
+    keywords:
+      - "salary negotiation"
+      - "compensation package"
+      - "negotiation tactics"
+      - "market research"
+      - "negotiation mindset"
+      - "counteroffer strategy"
+    description: "Strategic approach to salary negotiation"
+    
+  networking_framework:
+    keywords:
+      - "strategic networking"
+      - "informational interviews"
+      - "relationship building"
+      - "industry connections"
+      - "mentorship"
+      - "professional relationships"
+    description: "Systematic approach to career networking"
+    
+  career_psychology:
+    keywords:
+      - "career confidence"
+      - "impostor syndrome"
+      - "career mindset"
+      - "self-advocacy"
+      - "professional identity"
+      - "career limiting beliefs"
+    description: "Psychology of career advancement"
+
+document_types:
+  structured_lesson:
+    patterns:
+      - "(?i)week\\s+\\d+"
+      - "(?i)module\\s+\\d+"
+      - "(?i)lesson\\s+\\d+"
+      - "(?i)the\\s+(.+?)\\s+framework"
+      - "(?i)step\\s+by\\s+step"
+      - "(?i)systematic\\s+approach"
+      - "(?i)complete\\s+guide\\s+to"
+      - "(?i)mastery\\s+course"
+    description: "Formal Dream Job lesson content"
+    
+  live_qa:
+    patterns:
+      - "(?i)q\\s*&\\s*a"
+      - "(?i)office\\s+hours"
+      - "(?i)live\\s+session"
+      - "(?i)student\\s+questions"
+      - "(?i)hot\\s+seat"
+      - "(?i)coaching\\s+call"
+      - "(?i)career\\s+clinic"
+    description: "Live coaching and Q&A sessions"
+    
+  student_teardown:
+    patterns:
+      - "(?i)resume\\s+teardown"
+      - "(?i)interview\\s+teardown"
+      - "(?i)student\\s+spotlight"
+      - "(?i)career\\s+makeover"
+      - "(?i)success\\s+story"
+      - "(?i)before\\s+and\\s+after"
+      - "(?i)student\\s+transformation"
+      - "(?i)salary\\s+increase\\s+story"
+    description: "Student case studies and career transformations"
+    
+  behind_scenes:
+    patterns:
+      - "(?i)behind\\s+the\\s+scenes"
+      - "(?i)industry\\s+insights"
+      - "(?i)recruiter\\s+secrets"
+      - "(?i)hiring\\s+manager\\s+perspective"
+      - "(?i)what\\s+employers\\s+really\\s+want"
+      - "(?i)insider\\s+information"
+      - "(?i)career\\s+reality"
+    description: "Industry insights and behind-the-scenes content"
+    
+  negotiation_workshop:
+    patterns:
+      - "(?i)negotiation\\s+workshop"
+      - "(?i)salary\\s+negotiation\\s+masterclass"
+      - "(?i)negotiation\\s+roleplay"
+      - "(?i)practice\\s+negotiation"
+      - "(?i)negotiation\\s+simulation"
+      - "(?i)compensation\\s+discussion"
+    description: "Salary negotiation workshops and practice"
+
+teaching_contexts:
+  systematic_instruction:
+    patterns:
+      - "(?i)here's\\s+the\\s+exact\\s+system"
+      - "(?i)framework\\s+for"
+      - "(?i)step\\s+1\\s*:"
+      - "(?i)career\\s+strategy\\s+is"
+      - "(?i)systematic\\s+approach\\s+to"
+      - "(?i)blueprint\\s+for"
+      - "(?i)methodology\\s+for"
+    weight: 1.0
+    
+  situational_advice:
+    patterns:
+      - "(?i)in\\s+your\\s+situation"
+      - "(?i)depends\\s+on\\s+your\\s+industry"
+      - "(?i)for\\s+your\\s+specific\\s+case"
+      - "(?i)career\\s+stage\\s+matters"
+      - "(?i)contextual\\s+advice"
+      - "(?i)individual\\s+circumstances"
+    weight: 0.8
+    
+  troubleshooting:
+    patterns:
+      - "(?i)if\\s+you're\\s+struggling\\s+with"
+      - "(?i)common\\s+career\\s+mistake"
+      - "(?i)interview\\s+problems"
+      - "(?i)negotiation\\s+challenges"
+      - "(?i)job\\s+search\\s+issues"
+      - "(?i)career\\s+obstacles"
+    weight: 0.7
+    
+  example_application:
+    patterns:
+      - "(?i)for\\s+example"
+      - "(?i)real\\s+world\\s+scenario"
+      - "(?i)let\\s+me\\s+show\\s+you"
+      - "(?i)practical\\s+application"
+      - "(?i)in\\s+practice"
+      - "(?i)case\\s+study\\s+example"
+    weight: 0.6
+
+authority_levels:
+  high_authority:
+    patterns:
+      - "(?i)proven\\s+career\\s+strategy"
+      - "(?i)tested\\s+with\\s+thousands"
+      - "(?i)data\\s+from\\s+students"
+      - "(?i)research\\s+shows"
+      - "(?i)industry\\s+data"
+      - "(?i)guaranteed\\s+approach"
+      - "(?i)never\\s+fails"
+      - "(?i)100%\\s+success\\s+rate"
+    weight: 1.0
+    
+  medium_authority:
+    patterns:
+      - "(?i)i\\s+recommend"
+      - "(?i)career\\s+best\\s+practice"
+      - "(?i)typically\\s+successful"
+      - "(?i)generally\\s+effective"
+      - "(?i)preferred\\s+strategy"
+      - "(?i)standard\\s+approach"
+      - "(?i)most\\s+effective\\s+method"
+    weight: 0.6
+    
+  low_authority:
+    patterns:
+      - "(?i)personal\\s+career\\s+opinion"
+      - "(?i)my\\s+experience\\s+suggests"
+      - "(?i)career\\s+hunch"
+      - "(?i)gut\\s+feeling\\s+about"
+      - "(?i)initial\\s+thought"
+      - "(?i)quick\\s+career\\s+tip"
+    weight: 0.2
+
+voice_patterns:
+  contrarian_openers:
+    - "Here's what most people get wrong about careers:"
+    - "Conventional career advice says X, but that's backwards."
+    - "Everyone tells you to be grateful for any job. That's terrible advice."
+    - "The typical career path is designed to keep you stuck."
+    - "Most career advice is written by people who've never negotiated a salary."
+    
+  framework_introductions:
+    - "Here's the exact career system I use:"
+    - "Let me walk you through the Dream Job framework:"
+    - "This is how successful career advancement actually works:"
+    - "The career strategy breaks down into these components:"
+    - "Here's the step-by-step process for landing your dream job:"
+    
+  tactical_language:
+    - "Here's the exact script to use:"
+    - "Use this exact interview approach:"
+    - "Copy and paste this negotiation language:"
+    - "Here's the specific strategy:"
+    - "Follow these exact career steps:"
+    
+  mindset_shifts:
+    - "The career psychology here is:"
+    - "Most people have limiting beliefs about their worth:"
+    - "The mental model you need for career success:"
+    - "Change your money psychology around salaries:"
+    - "Your invisible scripts about careers are:"
+    
+  case_study_setups:
+    - "Let me tell you about a student who transformed their career:"
+    - "Here's a real example from the Dream Job course:"
+    - "I worked with someone who had this exact career challenge:"
+    - "This student's career transformation shows:"
+    - "Behind the scenes of a successful salary negotiation:"
+
+signature_phrases_by_context:
+  first_sale: "You deserve better than your current situation."
+  customer_research: "Research the company like your career depends on it."
+  pricing: "Your salary is not charity. It's business."
+  offers: "Make yourself irresistible to employers."
+  mindset: "Stop being grateful for scraps."
+  frameworks: "Career success isn't luck. It's strategy."
+  tactical: "You already have the skills. You just need the system."
+  general: "You deserve better than your current situation."
+
+query_intent_classification:
+  job_search:
+    keywords:
+      - "job search"
+      - "find a job"
+      - "job hunting"
+      - "career change"
+      - "new position"
+      - "job applications"
+      
+  interviews:
+    keywords:
+      - "interview"
+      - "job interview"
+      - "interview questions"
+      - "interview preparation"
+      - "behavioral questions"
+      - "interview confidence"
+      
+  salary_negotiation:
+    keywords:
+      - "salary"
+      - "negotiation"
+      - "raise"
+      - "compensation"
+      - "pay increase"
+      - "salary negotiation"
+      
+  networking:
+    keywords:
+      - "networking"
+      - "professional relationships"
+      - "industry connections"
+      - "informational interviews"
+      - "mentorship"
+      - "career contacts"
+      
+  career_mindset:
+    keywords:
+      - "career confidence"
+      - "impostor syndrome"
+      - "career psychology"
+      - "self-worth"
+      - "career limiting beliefs"
+      - "professional identity"
+      
+  career_strategy:
+    keywords:
+      - "career strategy"
+      - "career planning"
+      - "career advancement"
+      - "career goals"
+      - "career development"
+      - "career framework"
+
+retrieval_priorities:
+  foundational:
+    structured_lesson: 1.0
+    systematic_instruction: 1.0
+    high_authority: 1.0
+    live_qa: 0.4
+    situational_advice: 0.3
+    low_authority: 0.2
+    
+  specific_problems:
+    live_qa: 1.0
+    situational_advice: 1.0
+    troubleshooting: 1.0
+    structured_lesson: 0.6
+    systematic_instruction: 0.5
+    high_authority: 0.7
+    
+  examples:
+    student_teardown: 1.0
+    case_study: 1.0
+    example_application: 1.0
+    behind_scenes: 0.8
+    negotiation_workshop: 0.8
+    structured_lesson: 0.4
+    
+  systematic:
+    structured_lesson: 1.0
+    systematic_instruction: 1.0
+    high_authority: 1.0
+    medium_authority: 0.8
+    live_qa: 0.3
+    low_authority: 0.2

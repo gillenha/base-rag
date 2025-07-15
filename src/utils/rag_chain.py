@@ -6,10 +6,10 @@ from langchain.memory import ConversationBufferMemory
 from langchain.prompts import PromptTemplate
 from langchain.prompts.chat import SystemMessagePromptTemplate, HumanMessagePromptTemplate, ChatPromptTemplate
 from langchain.schema.runnable import Runnable
-from .context_aware_prompting import create_ramit_prompt_generator, UserContext
+from .configurable_context_aware_prompting import create_expert_prompt_generator, UserContext
 from .coaching_context_injector import create_coaching_context_injector
 
-def create_rag_chain(vector_store, model_name="gpt-3.5-turbo", use_context_aware_prompting=True):
+def create_rag_chain(vector_store, model_name="gpt-3.5-turbo", use_context_aware_prompting=True, expert_config_path=None):
     """
     Creates a RAG chain that combines retrieval and generation with context-aware prompting.
     
@@ -17,6 +17,7 @@ def create_rag_chain(vector_store, model_name="gpt-3.5-turbo", use_context_aware
         vector_store: Vector store for retrieval
         model_name: Name of the LLM model to use
         use_context_aware_prompting: Whether to use dynamic prompting based on query context
+        expert_config_path: Path to expert configuration file
         
     Returns:
         A RAG chain with context-aware prompting capabilities
@@ -37,7 +38,7 @@ def create_rag_chain(vector_store, model_name="gpt-3.5-turbo", use_context_aware
     
     # Initialize context-aware prompting components if enabled
     if use_context_aware_prompting:
-        prompt_generator = create_ramit_prompt_generator()
+        prompt_generator = create_expert_prompt_generator(expert_config_path)
         context_injector = create_coaching_context_injector()
         print("Using context-aware prompting for dynamic response adaptation")
         
@@ -50,34 +51,34 @@ def create_rag_chain(vector_store, model_name="gpt-3.5-turbo", use_context_aware
         )
     else:
         # Fallback to static prompt template
-        system_template = """You are a knowledge repository specifically trained on Ramit Sethi's Earnable course materials. Your job is to provide Ramit's specific frameworks, methodologies, and contrarian approaches rather than generic business advice.
+        system_template = """You are a knowledge repository specifically trained on expert course materials. Your job is to provide the expert's specific frameworks, methodologies, and distinctive approaches rather than generic advice.
 
 When answering questions, prioritize content that contains:
-- Ramit's specific frameworks (profit playbook, winning offers, authentic selling, customer research)
-- His contrarian takes that challenge conventional wisdom
+- The expert's specific frameworks and methodologies
+- Their distinctive takes and approaches
 - Tactical, step-by-step processes from the course
-- Real case studies and student examples
-- Specific numbers, metrics, and testing approaches
-- Ramit's distinctive mindset and psychology content
+- Real case studies and examples
+- Specific metrics and practical approaches
+- The expert's distinctive teaching style and content
 
 ## Response Guidelines:
-- Use Ramit's terminology and specific frameworks when available
-- Reference his contrarian approaches when they apply
+- Use the expert's terminology and specific frameworks when available
+- Reference their distinctive approaches when they apply
 - Include tactical steps and exact processes
 - Cite specific modules, documents, or sections
-- Highlight when content contradicts conventional business advice
-- Present information as Ramit teaches it, not as generic business content
+- Highlight unique perspectives that differ from conventional advice
+- Present information as the expert teaches it, not as generic content
 
 ## Context Handling Instructions:
-1. For course content (document_type is not specified), prioritize content with high ramit_framework_score, ramit_contrarian_score, or ramit_tactical_score
+1. For course content (document_type is not specified), prioritize content with high framework_score, contrarian_score, or tactical_score
 2. For resume information (document_type = "resume"), only reference when directly relevant
 3. For client information (document_type = "client_document"), provide specific details about that client project when asked
 
-Look for these Ramit-specific content indicators in the context:
-- ramit_primary_type: The main type of Ramit content (framework, contrarian, tactical, etc.)
-- ramit_frameworks: Specific frameworks mentioned (customer_research, winning_offer, authentic_selling, etc.)
-- ramit_signatures: Key phrases that indicate Ramit's specific approach
-- ramit_contrarian_score: Higher scores indicate content that challenges conventional wisdom
+Look for these expert-specific content indicators in the context:
+- primary_type: The main type of expert content (framework, contrarian, tactical, etc.)
+- frameworks: Specific frameworks mentioned
+- signatures: Key phrases that indicate the expert's specific approach
+- scores: Higher scores indicate content strength in various categories
 
 Context: {context}
 ----------------
@@ -89,13 +90,13 @@ Chat History: {chat_history}"""
         
         chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt, human_message_prompt])
     
-    # Create enhanced retriever with Ramit-specific logic
+    # Create enhanced retriever with expert-specific logic
     try:
-        from .ramit_retriever import create_ramit_enhanced_retriever
-        retriever = create_ramit_enhanced_retriever(vector_store, {"k": 5})
-        print("Using Ramit-enhanced retriever for better semantic matching")
+        from .configurable_enhanced_retriever import create_expert_enhanced_retriever
+        retriever = create_expert_enhanced_retriever(vector_store, expert_config_path, {"k": 5})
+        print("Using expert-enhanced retriever for better semantic matching")
     except ImportError:
-        print("Ramit-enhanced retriever not available, using standard retriever")
+        print("Expert-enhanced retriever not available, using standard retriever")
         retriever = vector_store.as_retriever(
             search_type="similarity",
             search_kwargs={"k": 5}

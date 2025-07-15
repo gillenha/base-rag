@@ -1,0 +1,511 @@
+# Ramit Sethi - Earnable Course Configuration
+# Specialized configuration for Ramit Sethi's Earnable business course
+
+expert_profile:
+  name: "Ramit Sethi"
+  teaching_style: "Direct, no-nonsense, framework-driven with contrarian perspectives"
+  expertise_domain: "Online Business Development"
+  signature_approach: "Systematic frameworks combined with psychology and testing"
+  
+content_types:
+  framework:
+    description: "Ramit's systematic business methodologies"
+    weight: 1.0
+    
+  mindset:
+    description: "Psychology, invisible scripts, and mental models"
+    weight: 0.9
+    
+  tactical:
+    description: "Step-by-step scripts and implementation guides"
+    weight: 0.8
+    
+  contrarian:
+    description: "Challenges conventional business wisdom"
+    weight: 0.9
+    
+  case_study:
+    description: "Student transformations and business makeovers"
+    weight: 0.8
+    
+  testing:
+    description: "A/B testing and validation methodologies"
+    weight: 0.8
+    
+  story:
+    description: "Student stories and behind-the-scenes content"
+    weight: 0.6
+    
+  numbers:
+    description: "Business metrics, conversion rates, and data"
+    weight: 0.8
+
+signature_phrases:
+  framework_indicators:
+    - phrase: "invisible scripts"
+      content_type: "mindset"
+      weight: 0.9
+    - phrase: "money dials"
+      content_type: "framework"
+      weight: 0.8
+    - phrase: "profit playbook"
+      content_type: "framework"
+      weight: 0.9
+    - phrase: "customer research"
+      content_type: "tactical"
+      weight: 0.7
+    - phrase: "winning offer"
+      content_type: "framework"
+      weight: 0.8
+    - phrase: "authentic selling"
+      content_type: "framework"
+      weight: 0.8
+    - phrase: "business isn't magic. it's math"
+      content_type: "numbers"
+      weight: 0.9
+    - phrase: "predictable numbers"
+      content_type: "numbers"
+      weight: 0.7
+    - phrase: "rich life"
+      content_type: "mindset"
+      weight: 0.8
+      
+  mindset_indicators:
+    - phrase: "i will teach you to be rich"
+      content_type: "mindset"
+      weight: 0.9
+    - phrase: "you don't need to be an expert"
+      content_type: "contrarian"
+      weight: 0.8
+    - phrase: "start before you're ready"
+      content_type: "contrarian"
+      weight: 0.8
+    - phrase: "stop asking for permission"
+      content_type: "mindset"
+      weight: 0.7
+      
+  contrarian_indicators:
+    - phrase: "most people are wrong about"
+      content_type: "contrarian"
+      weight: 0.8
+    - phrase: "conventional wisdom says"
+      content_type: "contrarian"
+      weight: 0.7
+    - phrase: "here's where most people get this wrong"
+      content_type: "contrarian"
+      weight: 0.9
+    - phrase: "everyone tells you to"
+      content_type: "contrarian"
+      weight: 0.8
+    - phrase: "typical advice"
+      content_type: "contrarian"
+      weight: 0.7
+      
+  tactical_indicators:
+    - phrase: "test it"
+      content_type: "testing"
+      weight: 0.8
+    - phrase: "validate"
+      content_type: "testing"
+      weight: 0.6
+    - phrase: "exact script"
+      content_type: "tactical"
+      weight: 0.8
+    - phrase: "word for word"
+      content_type: "tactical"
+      weight: 0.8
+    - phrase: "copy and paste"
+      content_type: "tactical"
+      weight: 0.7
+      
+  case_study_indicators:
+    - phrase: "let me tell you about"
+      content_type: "case_study"
+      weight: 0.7
+    - phrase: "student story"
+      content_type: "case_study"
+      weight: 0.9
+    - phrase: "behind the scenes"
+      content_type: "case_study"
+      weight: 0.8
+    - phrase: "teardown"
+      content_type: "case_study"
+      weight: 0.9
+    - phrase: "makeover"
+      content_type: "case_study"
+      weight: 0.9
+
+frameworks:
+  customer_research:
+    keywords:
+      - "customer research call"
+      - "mind reading"
+      - "what keeps you up at night"
+      - "biggest challenge"
+      - "dream outcome"
+      - "customer interviews"
+    description: "Ramit's customer research methodology"
+    
+  winning_offer:
+    keywords:
+      - "irresistible offer"
+      - "anatomy of"
+      - "positioning"
+      - "guarantee"
+      - "bonuses"
+      - "scarcity"
+      - "urgency"
+      - "value proposition"
+    description: "Framework for creating compelling offers"
+    
+  authentic_selling:
+    keywords:
+      - "sales call"
+      - "objection handling"
+      - "closing"
+      - "follow up"
+      - "building rapport"
+      - "understanding needs"
+      - "presentation"
+    description: "Ramit's approach to ethical selling"
+    
+  profit_playbook:
+    keywords:
+      - "business model"
+      - "revenue streams"
+      - "pricing strategy"
+      - "client acquisition"
+      - "systems"
+      - "automation"
+    description: "Systematic approach to profitable business"
+    
+  testing_framework:
+    keywords:
+      - "a/b test"
+      - "validate"
+      - "iterate"
+      - "feedback"
+      - "metrics"
+      - "conversion rate"
+      - "optimize"
+      - "experiment"
+    description: "Ramit's testing and validation methodology"
+
+document_types:
+  structured_lesson:
+    patterns:
+      - "(?i)lesson\\s+\\d+"
+      - "(?i)module\\s+\\d+"
+      - "(?i)chapter\\s+\\d+"
+      - "(?i)the\\s+(.+?)\\s+framework"
+      - "(?i)anatomy\\s+of"
+      - "(?i)step\\s+by\\s+step"
+      - "(?i)here's\\s+the\\s+exact\\s+system"
+      - "(?i)systematic\\s+approach"
+      - "(?i)methodology"
+    description: "Formal Earnable lesson content"
+    
+  live_qa:
+    patterns:
+      - "(?i)q\\s*&\\s*a"
+      - "(?i)question\\s+and\\s+answer"
+      - "(?i)live\\s+session"
+      - "(?i)office\\s+hours"
+      - "(?i)that's\\s+a\\s+great\\s+question"
+      - "(?i)someone\\s+asked"
+      - "(?i)ramit:\\s*"
+      - "(?i)student:\\s*"
+      - "(?i)from\\s+the\\s+chat"
+    description: "Live Q&A and office hours content"
+    
+  student_teardown:
+    patterns:
+      - "(?i)student\\s+teardown"
+      - "(?i)teardown\\s+session"
+      - "(?i)student\\s+spotlight"
+      - "(?i)before\\s+and\\s+after"
+      - "(?i)student\\s+transformation"
+      - "(?i)real\\s+student\\s+example"
+      - "(?i)case\\s+study:\\s*[A-Z]"
+      - "(?i)let\\s+me\\s+show\\s+you\\s+what\\s+[A-Z]\\w+\\s+did"
+      - "(?i)student\\s+story"
+      - "(?i)success\\s+story"
+    description: "Student case studies and transformations"
+    
+  behind_scenes:
+    patterns:
+      - "(?i)behind\\s+the\\s+scenes"
+      - "(?i)bts\\s+"
+      - "(?i)exclusive\\s+content"
+      - "(?i)bonus\\s+material"
+      - "(?i)deep\\s+dive"
+      - "(?i)advanced\\s+training"
+      - "(?i)insider\\s+perspective"
+      - "(?i)what\\s+we\\s+don't\\s+talk\\s+about"
+      - "(?i)the\\s+real\\s+story"
+    description: "Behind-the-scenes and advanced content"
+    
+  business_makeover:
+    patterns:
+      - "(?i)business\\s+makeover"
+      - "(?i)makeover\\s+session"
+      - "(?i)business\\s+audit"
+      - "(?i)diagnostic\\s+session"
+      - "(?i)let's\\s+fix\\s+your\\s+business"
+      - "(?i)business\\s+review"
+      - "(?i)what's\\s+wrong\\s+with"
+      - "(?i)business\\s+diagnosis"
+    description: "Business diagnostic and makeover sessions"
+
+teaching_contexts:
+  systematic_instruction:
+    patterns:
+      - "(?i)here's\\s+the\\s+exact\\s+system"
+      - "(?i)framework\\s+for"
+      - "(?i)step\\s+1\\s*:"
+      - "(?i)step\\s+2\\s*:"
+      - "(?i)first,?\\s+you\\s+need\\s+to"
+      - "(?i)methodology\\s+is"
+      - "(?i)systematic\\s+approach"
+      - "(?i)blueprint\\s+for"
+      - "(?i)formula\\s+for"
+    weight: 1.0
+    
+  situational_advice:
+    patterns:
+      - "(?i)depends\\s+on\\s+your\\s+situation"
+      - "(?i)in\\s+your\\s+case"
+      - "(?i)for\\s+your\\s+specific\\s+situation"
+      - "(?i)it\\s+depends"
+      - "(?i)that's\\s+a\\s+great\\s+question"
+      - "(?i)here's\\s+what\\s+I\\s+would\\s+do"
+      - "(?i)my\\s+recommendation\\s+would\\s+be"
+    weight: 0.8
+    
+  troubleshooting:
+    patterns:
+      - "(?i)what\\s+if\\s+"
+      - "(?i)common\\s+mistake"
+      - "(?i)problem\\s+is"
+      - "(?i)issue\\s+you\\s+might\\s+face"
+      - "(?i)here's\\s+what\\s+to\\s+do\\s+when"
+      - "(?i)if\\s+you're\\s+struggling"
+      - "(?i)solution\\s+is"
+      - "(?i)fix\\s+for"
+    weight: 0.7
+    
+  example_application:
+    patterns:
+      - "(?i)for\\s+example"
+      - "(?i)let\\s+me\\s+show\\s+you"
+      - "(?i)here's\\s+an\\s+example"
+      - "(?i)real\\s+world\\s+example"
+      - "(?i)practical\\s+application"
+      - "(?i)in\\s+practice"
+      - "(?i)applied\\s+to"
+    weight: 0.6
+    
+  diagnostic:
+    patterns:
+      - "(?i)what's\\s+wrong\\s+with"
+      - "(?i)diagnosis\\s+is"
+      - "(?i)problem\\s+here\\s+is"
+      - "(?i)root\\s+cause"
+      - "(?i)underlying\\s+issue"
+      - "(?i)let's\\s+diagnose"
+    weight: 0.5
+
+authority_levels:
+  high_authority:
+    patterns:
+      - "(?i)this\\s+is\\s+the\\s+exact"
+      - "(?i)here's\\s+the\\s+exact\\s+system"
+      - "(?i)proven\\s+framework"
+      - "(?i)tested\\s+methodology"
+      - "(?i)definitive\\s+guide"
+      - "(?i)guaranteed\\s+approach"
+      - "(?i)never\\s+fails"
+      - "(?i)always\\s+works"
+      - "(?i)data\\s+shows"
+    weight: 1.0
+    
+  medium_authority:
+    patterns:
+      - "(?i)I\\s+recommend"
+      - "(?i)my\\s+suggestion\\s+is"
+      - "(?i)best\\s+practice\\s+is"
+      - "(?i)typically\\s+works\\s+well"
+      - "(?i)generally\\s+effective"
+      - "(?i)usually\\s+successful"
+      - "(?i)tends\\s+to\\s+work"
+      - "(?i)preferred\\s+method"
+    weight: 0.6
+    
+  low_authority:
+    patterns:
+      - "(?i)off\\s+the\\s+top\\s+of\\s+my\\s+head"
+      - "(?i)quick\\s+thought"
+      - "(?i)initial\\s+reaction"
+      - "(?i)gut\\s+feeling"
+      - "(?i)my\\s+first\\s+thought"
+      - "(?i)without\\s+thinking\\s+too\\s+much"
+    weight: 0.2
+
+voice_patterns:
+  contrarian_openers:
+    - "Here's where most people get this wrong:"
+    - "Conventional wisdom says X, but that's completely backwards."
+    - "Everyone tells you to do X. That's terrible advice."
+    - "The typical approach is to X. That's why most people fail."
+    - "You've probably heard that you should X. Ignore that advice."
+    
+  framework_introductions:
+    - "Here's the exact framework I use:"
+    - "Let me walk you through the system:"
+    - "This is how the process actually works:"
+    - "The framework breaks down into these components:"
+    - "Here's the step-by-step process:"
+    
+  tactical_language:
+    - "Here's exactly what to do:"
+    - "Use this exact script:"
+    - "Copy and paste this:"
+    - "Here's the specific language:"
+    - "Follow these exact steps:"
+    
+  mindset_shifts:
+    - "The invisible script here is:"
+    - "Here's the psychology behind this:"
+    - "Most people have limiting beliefs about:"
+    - "The mental model you need is:"
+    - "Change your money dial on:"
+    
+  case_study_setups:
+    - "Let me tell you about one of my students:"
+    - "Here's a real example from the course:"
+    - "I worked with someone who had this exact problem:"
+    - "This student's transformation shows:"
+    - "Behind the scenes, here's what really happened:"
+
+signature_phrases_by_context:
+  first_sale: "Focus on your first paying customer."
+  customer_research: "Systems beat goals."
+  pricing: "Business isn't magic. It's math."
+  offers: "Test everything."
+  mindset: "Start before you're ready."
+  frameworks: "Master the fundamentals first."
+  tactical: "You don't need to be an expert."
+  general: "Business isn't magic. It's math."
+
+query_intent_classification:
+  first_sale:
+    keywords:
+      - "first sale"
+      - "first client"
+      - "get my first"
+      - "land my first"
+      - "initial sale"
+      - "first customer"
+      - "starting out"
+      
+  customer_research:
+    keywords:
+      - "customer research"
+      - "mind reading"
+      - "understand customers"
+      - "customer needs"
+      - "target audience"
+      - "customer interviews"
+      
+  pricing:
+    keywords:
+      - "price"
+      - "pricing"
+      - "charge"
+      - "rates"
+      - "how much"
+      - "cost"
+      - "expensive"
+      - "value"
+      
+  offers:
+    keywords:
+      - "offer"
+      - "package"
+      - "service"
+      - "product"
+      - "irresistible"
+      - "compelling"
+      - "positioning"
+      
+  mindset:
+    keywords:
+      - "mindset"
+      - "confidence"
+      - "fear"
+      - "doubt"
+      - "believe"
+      - "psychology"
+      - "invisible scripts"
+      - "limiting"
+      
+  frameworks:
+    keywords:
+      - "framework"
+      - "system"
+      - "process"
+      - "methodology"
+      - "approach"
+      - "strategy"
+      
+  contrarian:
+    keywords:
+      - "wrong"
+      - "myth"
+      - "conventional wisdom"
+      - "everyone says"
+      - "typical advice"
+      - "different approach"
+      
+  tactical:
+    keywords:
+      - "how to"
+      - "steps"
+      - "exactly"
+      - "specific"
+      - "script"
+      - "template"
+      - "checklist"
+
+retrieval_priorities:
+  foundational:
+    structured_lesson: 1.0
+    systematic_instruction: 1.0
+    high_authority: 1.0
+    live_qa: 0.4
+    situational_advice: 0.3
+    low_authority: 0.2
+    
+  specific_problems:
+    live_qa: 1.0
+    situational_advice: 1.0
+    troubleshooting: 1.0
+    structured_lesson: 0.6
+    systematic_instruction: 0.5
+    high_authority: 0.7
+    
+  examples:
+    student_teardown: 1.0
+    case_study: 1.0
+    example_application: 1.0
+    behind_scenes: 0.8
+    business_makeover: 0.8
+    structured_lesson: 0.4
+    
+  systematic:
+    structured_lesson: 1.0
+    systematic_instruction: 1.0
+    high_authority: 1.0
+    medium_authority: 0.8
+    live_qa: 0.3
+    low_authority: 0.2

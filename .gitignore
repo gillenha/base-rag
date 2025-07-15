@@ -46,3 +46,17 @@ test_logs/
 
 # Temporary test files
 *_test_*.json
+
+# Add these lines to your existing .gitignore:
+
+# Expert configuration backups and variants
+config/backup/
+config/*.backup
+config/*_old.yaml
+
+# Setup script outputs
+expert_setup_*.log
+
+# Any user-specific configuration overrides
+config/user_*.yaml
+config/local_*.yaml

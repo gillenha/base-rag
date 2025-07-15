@@ -1,0 +1,319 @@
+# Expert Configuration Template
+# This template defines the structure for configuring any expert's
+# teaching methodology, voice patterns, and content classification system
+
+expert_profile:
+  name: "Expert Name"
+  teaching_style: "Direct, systematic, framework-driven"
+  expertise_domain: "Business/Personal Development/Technology/etc"
+  signature_approach: "Brief description of their unique methodology"
+  
+# Content Types - Different types of content this expert creates
+content_types:
+  # Primary content classifications
+  framework:
+    description: "Systematic approaches and methodologies"
+    weight: 1.0
+    
+  mindset:
+    description: "Psychology and mental model content"
+    weight: 0.9
+    
+  tactical:
+    description: "Step-by-step actionable guidance"
+    weight: 0.8
+    
+  contrarian:
+    description: "Challenges conventional wisdom"
+    weight: 0.9
+    
+  case_study:
+    description: "Real examples and student stories"
+    weight: 0.8
+    
+  testing:
+    description: "Validation and experimentation content"
+    weight: 0.7
+    
+  story:
+    description: "Narrative and storytelling content"
+    weight: 0.6
+    
+  numbers:
+    description: "Data, metrics, and quantitative content"
+    weight: 0.8
+
+# Signature Phrases - Expert's distinctive language patterns
+signature_phrases:
+  # Framework and systems language
+  framework_indicators:
+    - phrase: "framework for"
+      content_type: "framework"
+      weight: 0.8
+    - phrase: "system for"
+      content_type: "framework"
+      weight: 0.8
+    - phrase: "methodology"
+      content_type: "framework"
+      weight: 0.7
+      
+  # Mindset and psychology phrases
+  mindset_indicators:
+    - phrase: "psychology behind"
+      content_type: "mindset"
+      weight: 0.9
+    - phrase: "mental model"
+      content_type: "mindset"
+      weight: 0.8
+      
+  # Tactical execution phrases
+  tactical_indicators:
+    - phrase: "step by step"
+      content_type: "tactical"
+      weight: 0.6
+    - phrase: "exact script"
+      content_type: "tactical"
+      weight: 0.8
+    - phrase: "copy and paste"
+      content_type: "tactical"
+      weight: 0.7
+      
+  # Contrarian indicators
+  contrarian_indicators:
+    - phrase: "most people think"
+      content_type: "contrarian"
+      weight: 0.8
+    - phrase: "conventional wisdom"
+      content_type: "contrarian"
+      weight: 0.7
+    - phrase: "wrong approach"
+      content_type: "contrarian"
+      weight: 0.8
+      
+  # Case study patterns
+  case_study_indicators:
+    - phrase: "let me tell you about"
+      content_type: "case_study"
+      weight: 0.7
+    - phrase: "student story"
+      content_type: "case_study"
+      weight: 0.9
+    - phrase: "real example"
+      content_type: "case_study"
+      weight: 0.8
+
+# Expert's Core Frameworks
+frameworks:
+  # Framework name mapped to key components/keywords
+  example_framework:
+    keywords:
+      - "keyword1"
+      - "keyword2"
+      - "keyword3"
+    description: "Brief description of the framework"
+    
+# Document Classification Patterns
+document_types:
+  # Source type patterns for identifying document origins
+  structured_lesson:
+    patterns:
+      - "lesson \\d+"
+      - "module \\d+"
+      - "chapter \\d+"
+      - "framework"
+      - "systematic approach"
+    description: "Formal lesson content"
+    
+  live_qa:
+    patterns:
+      - "q\\s*&\\s*a"
+      - "question and answer"
+      - "live session"
+      - "that's a great question"
+    description: "Interactive Q&A sessions"
+    
+  student_teardown:
+    patterns:
+      - "student teardown"
+      - "before and after"
+      - "transformation"
+      - "real student example"
+    description: "Student case studies and reviews"
+    
+  behind_scenes:
+    patterns:
+      - "behind the scenes"
+      - "exclusive content"
+      - "deep dive"
+      - "advanced training"
+    description: "Advanced or exclusive content"
+
+# Teaching Contexts - How content is delivered
+teaching_contexts:
+  systematic_instruction:
+    patterns:
+      - "here's the exact system"
+      - "framework for"
+      - "step 1:"
+      - "methodology is"
+    weight: 1.0
+    
+  situational_advice:
+    patterns:
+      - "depends on your situation"
+      - "in your case"
+      - "it depends"
+      - "my recommendation would be"
+    weight: 0.8
+    
+  troubleshooting:
+    patterns:
+      - "what if"
+      - "common mistake"
+      - "problem is"
+      - "solution is"
+    weight: 0.7
+    
+  example_application:
+    patterns:
+      - "for example"
+      - "let me show you"
+      - "practical application"
+      - "in practice"
+    weight: 0.6
+
+# Authority Levels - Confidence indicators
+authority_levels:
+  high_authority:
+    patterns:
+      - "proven framework"
+      - "tested approach"
+      - "data shows"
+      - "research indicates"
+    weight: 1.0
+    
+  medium_authority:
+    patterns:
+      - "best practice"
+      - "recommended approach"
+      - "typically effective"
+      - "generally works"
+    weight: 0.6
+    
+  low_authority:
+    patterns:
+      - "personal opinion"
+      - "my take on"
+      - "I think"
+      - "gut feeling"
+    weight: 0.2
+
+# Voice Patterns - Expert's distinctive communication style
+voice_patterns:
+  # Opening phrases for different coaching styles
+  contrarian_openers:
+    - "Here's where most people get this wrong:"
+    - "Conventional wisdom says X, but that's backwards."
+    - "Everyone tells you to do X. That's terrible advice."
+    
+  framework_introductions:
+    - "Here's the exact framework I use:"
+    - "Let me walk you through the system:"
+    - "This is how the process works:"
+    
+  tactical_language:
+    - "Here's exactly what to do:"
+    - "Use this exact approach:"
+    - "Follow these specific steps:"
+    
+  mindset_shifts:
+    - "The psychology behind this is:"
+    - "Most people have limiting beliefs about:"
+    - "The mental model you need is:"
+    
+  case_study_setups:
+    - "Let me tell you about someone who:"
+    - "Here's a real example:"
+    - "I worked with someone who:"
+
+# Expert's signature phrases for different contexts
+signature_phrases_by_context:
+  first_sale: "Focus on your first paying customer."
+  customer_research: "Systems beat goals."
+  pricing: "Business isn't magic. It's math."
+  offers: "Test everything."
+  mindset: "Start before you're ready."
+  frameworks: "Master the fundamentals first."
+  tactical: "You don't need to be an expert."
+  general: "Business isn't magic. It's math."
+
+# Query Intent Classification
+query_intent_classification:
+  first_sale:
+    keywords:
+      - "first sale"
+      - "first client"
+      - "get my first"
+      - "starting out"
+      
+  customer_research:
+    keywords:
+      - "customer research"
+      - "understand customers"
+      - "target audience"
+      - "customer needs"
+      
+  pricing:
+    keywords:
+      - "price"
+      - "pricing"
+      - "charge"
+      - "how much"
+      
+  frameworks:
+    keywords:
+      - "framework"
+      - "system"
+      - "process"
+      - "methodology"
+      
+  contrarian:
+    keywords:
+      - "wrong"
+      - "myth"
+      - "conventional wisdom"
+      - "different approach"
+      
+  tactical:
+    keywords:
+      - "how to"
+      - "steps"
+      - "exactly"
+      - "specific"
+
+# Retrieval Prioritization
+retrieval_priorities:
+  # Query intent -> document type priority weights
+  foundational:
+    structured_lesson: 1.0
+    systematic_instruction: 1.0
+    high_authority: 1.0
+    live_qa: 0.4
+    
+  specific_problems:
+    live_qa: 1.0
+    troubleshooting: 1.0
+    situational_advice: 1.0
+    structured_lesson: 0.6
+    
+  examples:
+    student_teardown: 1.0
+    case_study: 1.0
+    example_application: 1.0
+    behind_scenes: 0.8
+    
+  systematic:
+    structured_lesson: 1.0
+    systematic_instruction: 1.0
+    high_authority: 1.0
+    medium_authority: 0.8
