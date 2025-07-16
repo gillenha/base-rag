@@ -4,22 +4,38 @@ import random
 from datetime import datetime, timedelta
 from typing import List, Dict, Any, Optional
 import re
+from .expert_analyzer import load_expert_config
 
 class GreetingGenerator:
     """
     Generates personalized greetings based on recent chat history and user profile.
+    Now configurable for any expert through YAML configuration.
     """
     
-    def __init__(self, chat_logs_dir: str = "./chat_logs", user_profile=None):
+    def __init__(self, chat_logs_dir: str = "./chat_logs", user_profile=None, expert_config_path: Optional[str] = None):
         """
         Initialize the greeting generator.
         
         Args:
             chat_logs_dir: Directory containing chat log files
             user_profile: UserProfile instance
+            expert_config_path: Path to expert configuration file
         """
         self.chat_logs_dir = chat_logs_dir
         self.user_profile = user_profile
+        
+        # Load expert configuration
+        try:
+            self.expert_config = load_expert_config(expert_config_path)
+            self.expert_profile = self.expert_config.get('expert_profile', {})
+        except Exception as e:
+            print(f"Warning: Could not load expert config: {e}")
+            # Fallback to default Ramit configuration
+            self.expert_profile = {
+                'name': 'Ramit Sethi',
+                'expertise_domain': 'Business and Career Development',
+                'signature_approach': 'Systematic frameworks with psychology'
+            }
     
     def get_recent_chat_summary(self, days_back: int = 7) -> Dict[str, Any]:
         """
@@ -93,7 +109,7 @@ class GreetingGenerator:
     
     def identify_conversation_themes(self, topics: List[Dict[str, Any]]) -> List[str]:
         """
-        Identify common themes from recent conversations.
+        Identify common themes from recent conversations using expert-specific keywords.
         
         Args:
             topics: List of recent conversation topics
@@ -104,18 +120,8 @@ class GreetingGenerator:
         if not topics:
             return []
         
-        # Keywords to identify themes
-        theme_keywords = {
-            "pricing": ["price", "rate", "charge", "cost", "pricing", "fee", "budget"],
-            "clients": ["client", "customer", "prospect", "lead", "referral"],
-            "services": ["service", "offer", "package", "deliverable", "solution"],
-            "marketing": ["marketing", "advertising", "promotion", "outreach", "social media"],
-            "business_growth": ["grow", "scale", "expand", "increase", "growth"],
-            "challenges": ["problem", "challenge", "issue", "struggle", "difficulty"],
-            "strategy": ["strategy", "plan", "approach", "method", "framework"],
-            "website": ["website", "web", "site", "online", "digital"],
-            "sales": ["sale", "selling", "close", "proposal", "pitch"]
-        }
+        # Get theme keywords from expert configuration
+        theme_keywords = self._get_domain_specific_themes()
         
         theme_counts = {theme: 0 for theme in theme_keywords.keys()}
         
@@ -127,6 +133,58 @@ class GreetingGenerator:
         
         # Return themes that appeared in at least 2 conversations
         return [theme for theme, count in theme_counts.items() if count >= 2]
+    
+    def _get_domain_specific_themes(self) -> Dict[str, List[str]]:
+        """
+        Get domain-specific themes based on expert's expertise domain.
+        
+        Returns:
+            Dictionary mapping theme names to keyword lists
+        """
+        domain = self.expert_profile.get('expertise_domain', '').lower()
+        
+        if 'career' in domain or 'job' in domain:
+            # Career coaching themes
+            return {
+                "job_search": ["job search", "job hunt", "job application", "career change", "new position"],
+                "interviews": ["interview", "interviewing", "job interview", "behavioral questions"],
+                "salary_negotiation": ["salary", "negotiation", "raise", "compensation", "pay"],
+                "networking": ["networking", "professional relationships", "industry connections"],
+                "career_strategy": ["career strategy", "career planning", "career advancement"],
+                "resume": ["resume", "cv", "application", "portfolio"],
+                "skills": ["skills", "training", "certification", "development"],
+                "confidence": ["confidence", "impostor syndrome", "self-worth", "mindset"]
+            }
+        else:
+            # Business coaching themes (default)
+            return {
+                "pricing": ["price", "rate", "charge", "cost", "pricing", "fee", "budget"],
+                "clients": ["client", "customer", "prospect", "lead", "referral"],
+                "services": ["service", "offer", "package", "deliverable", "solution"],
+                "marketing": ["marketing", "advertising", "promotion", "outreach", "social media"],
+                "business_growth": ["grow", "scale", "expand", "increase", "growth"],
+                "challenges": ["problem", "challenge", "issue", "struggle", "difficulty"],
+                "strategy": ["strategy", "plan", "approach", "method", "framework"],
+                "website": ["website", "web", "site", "online", "digital"],
+                "sales": ["sale", "selling", "close", "proposal", "pitch"]
+            }
+    
+    def _get_expert_title(self) -> str:
+        """
+        Generate expert-specific title based on domain.
+        
+        Returns:
+            Expert title string
+        """
+        domain = self.expert_profile.get('expertise_domain', '').lower()
+        expert_name = self.expert_profile.get('name', 'Expert')
+        
+        if 'career' in domain or 'job' in domain:
+            return f"{expert_name} - Career Coach"
+        elif 'business' in domain:
+            return f"{expert_name} - Business Coach"
+        else:
+            return f"{expert_name} - Coach"
     
     def generate_greeting(self) -> str:
         """
@@ -163,27 +221,12 @@ class GreetingGenerator:
                 greeting_parts.append("Welcome back! I'm here to help you continue building your business.")
         else:
             # First-time user or no recent logs
-            first_time_greetings = [
-                "Welcome! I'm your Earnable business coach, ready to help you build and grow your business.",
-                "Hello! I'm here to guide you through building a successful business using Earnable principles.",
-                "Welcome to your business coaching session! I'm ready to help you turn your business ideas into reality.",
-                "Hi there! I'm your personal business coach, trained on the Earnable course to help you succeed."
-            ]
+            first_time_greetings = self._get_domain_specific_greetings()
             greeting_parts.append(random.choice(first_time_greetings))
         
         # Add context from recent conversations
         if themes:
-            theme_descriptions = {
-                "pricing": "pricing strategies",
-                "clients": "client acquisition",
-                "services": "service offerings",
-                "marketing": "marketing approaches",
-                "business_growth": "business growth",
-                "challenges": "business challenges",
-                "strategy": "business strategy",
-                "website": "website development",
-                "sales": "sales processes"
-            }
+            theme_descriptions = self._get_theme_descriptions()
             
             theme_list = [theme_descriptions.get(theme, theme) for theme in themes[:3]]
             if len(theme_list) == 1:
@@ -209,25 +252,129 @@ class GreetingGenerator:
         
         # Add a helpful prompt
         if recent_analysis["last_conversation"]:
-            if "pricing" in themes:
-                greeting_parts.append("Would you like to continue working on your pricing strategy, or is there something else on your mind?")
-            elif "clients" in themes:
-                greeting_parts.append("Ready to continue with client acquisition strategies, or do you have a new challenge to tackle?")
-            elif "services" in themes:
-                greeting_parts.append("Should we dive deeper into your service offerings, or explore a different aspect of your business?")
-            else:
-                greeting_parts.append("What would you like to work on today?")
+            prompt = self._get_domain_specific_continuation_prompt(themes)
+            greeting_parts.append(prompt)
         else:
             # Different prompts for first-time users
-            first_time_prompts = [
+            first_time_prompts = self._get_domain_specific_first_time_prompts()
+            greeting_parts.append(random.choice(first_time_prompts))
+        
+        return " ".join(greeting_parts)
+    
+    def _get_domain_specific_greetings(self) -> List[str]:
+        """
+        Get domain-specific greeting messages.
+        
+        Returns:
+            List of greeting messages
+        """
+        domain = self.expert_profile.get('expertise_domain', '').lower()
+        expert_name = self.expert_profile.get('name', 'Expert')
+        
+        if 'career' in domain or 'job' in domain:
+            return [
+                f"Welcome! I'm your {expert_name} career coach, ready to help you advance your career and achieve your professional goals.",
+                f"Hello! I'm here to guide you through career development using proven strategies and frameworks.",
+                f"Welcome to your career coaching session! I'm ready to help you land your dream job and advance your career.",
+                f"Hi there! I'm your personal career coach, trained to help you succeed in your professional journey."
+            ]
+        else:
+            # Business coaching (default)
+            return [
+                f"Welcome! I'm your {expert_name} business coach, ready to help you build and grow your business.",
+                f"Hello! I'm here to guide you through building a successful business using proven frameworks.",
+                f"Welcome to your business coaching session! I'm ready to help you turn your business ideas into reality.",
+                f"Hi there! I'm your personal business coach, trained to help you succeed."
+            ]
+    
+    def _get_theme_descriptions(self) -> Dict[str, str]:
+        """
+        Get domain-specific theme descriptions.
+        
+        Returns:
+            Dictionary mapping theme names to descriptions
+        """
+        domain = self.expert_profile.get('expertise_domain', '').lower()
+        
+        if 'career' in domain or 'job' in domain:
+            return {
+                "job_search": "job search strategies",
+                "interviews": "interview preparation",
+                "salary_negotiation": "salary negotiation",
+                "networking": "professional networking",
+                "career_strategy": "career advancement",
+                "resume": "resume optimization",
+                "skills": "skill development",
+                "confidence": "career confidence"
+            }
+        else:
+            return {
+                "pricing": "pricing strategies",
+                "clients": "client acquisition",
+                "services": "service offerings",
+                "marketing": "marketing approaches",
+                "business_growth": "business growth",
+                "challenges": "business challenges",
+                "strategy": "business strategy",
+                "website": "website development",
+                "sales": "sales processes"
+            }
+    
+    def _get_domain_specific_continuation_prompt(self, themes: List[str]) -> str:
+        """
+        Get domain-specific continuation prompt based on themes.
+        
+        Args:
+            themes: List of conversation themes
+            
+        Returns:
+            Continuation prompt string
+        """
+        domain = self.expert_profile.get('expertise_domain', '').lower()
+        
+        if 'career' in domain or 'job' in domain:
+            if "job_search" in themes:
+                return "Would you like to continue working on your job search strategy, or is there something else on your mind?"
+            elif "interviews" in themes:
+                return "Ready to continue with interview preparation, or do you have a new career challenge to tackle?"
+            elif "salary_negotiation" in themes:
+                return "Should we dive deeper into salary negotiation tactics, or explore a different aspect of your career?"
+            else:
+                return "What would you like to work on for your career today?"
+        else:
+            # Business coaching prompts
+            if "pricing" in themes:
+                return "Would you like to continue working on your pricing strategy, or is there something else on your mind?"
+            elif "clients" in themes:
+                return "Ready to continue with client acquisition strategies, or do you have a new challenge to tackle?"
+            elif "services" in themes:
+                return "Should we dive deeper into your service offerings, or explore a different aspect of your business?"
+            else:
+                return "What would you like to work on today?"
+    
+    def _get_domain_specific_first_time_prompts(self) -> List[str]:
+        """
+        Get domain-specific first-time user prompts.
+        
+        Returns:
+            List of first-time prompts
+        """
+        domain = self.expert_profile.get('expertise_domain', '').lower()
+        
+        if 'career' in domain or 'job' in domain:
+            return [
+                "What's the most important thing you'd like to focus on for your career right now?",
+                "What's the biggest challenge or opportunity you're facing in your career?",
+                "What would you like to work on first to advance your career?",
+                "What's the most pressing career question on your mind today?"
+            ]
+        else:
+            return [
                 "What's the most important thing you'd like to focus on for your business right now?",
                 "What's the biggest challenge or opportunity you're facing in your business?",
                 "What would you like to work on first to grow your business?",
                 "What's the most pressing business question on your mind today?"
             ]
-            greeting_parts.append(random.choice(first_time_prompts))
-        
-        return " ".join(greeting_parts)
     
     def get_quick_start_suggestions(self) -> List[str]:
         """
@@ -243,30 +390,10 @@ class GreetingGenerator:
         suggestions = []
         
         # Add suggestions based on themes
-        if "pricing" in themes:
-            suggestions.append("• Continue refining your pricing strategy")
-        if "clients" in themes:
-            suggestions.append("• Work on client acquisition methods")
-        if "services" in themes:
-            suggestions.append("• Develop new service packages")
-        if "marketing" in themes:
-            suggestions.append("• Improve your marketing approach")
-        if "website" in themes:
-            suggestions.append("• Optimize your website for conversions")
-        if "sales" in themes:
-            suggestions.append("• Enhance your sales process")
+        self._add_theme_based_suggestions(themes, suggestions)
         
         # Add general suggestions if no specific themes or to fill out the list
-        general_suggestions = [
-            "• Review your current pricing and see if you can raise rates",
-            "• Identify your next ideal client and create a plan to reach them",
-            "• Develop a new service package or product",
-            "• Work on your business positioning and messaging",
-            "• Create a lead generation system for your business",
-            "• Analyze your current client base and identify expansion opportunities",
-            "• Build a referral system to get more clients",
-            "• Develop a passive income stream for your business"
-        ]
+        general_suggestions = self._get_domain_specific_general_suggestions()
         
         # Shuffle general suggestions and add them to fill out the list
         random.shuffle(general_suggestions)
@@ -278,4 +405,83 @@ class GreetingGenerator:
         if profile_info.get("challenges") and len(suggestions) < 3:
             suggestions.append("• Address a specific business challenge you're facing")
         
-        return suggestions[:3]  # Return top 3 suggestions 
+        return suggestions[:3]  # Return top 3 suggestions
+    
+    def _add_theme_based_suggestions(self, themes: List[str], suggestions: List[str]) -> None:
+        """
+        Add theme-based suggestions to the suggestions list.
+        
+        Args:
+            themes: List of conversation themes
+            suggestions: List to add suggestions to (modified in place)
+        """
+        domain = self.expert_profile.get('expertise_domain', '').lower()
+        
+        if 'career' in domain or 'job' in domain:
+            if "job_search" in themes:
+                suggestions.append("• Continue optimizing your job search strategy")
+            if "interviews" in themes:
+                suggestions.append("• Practice more interview scenarios")
+            if "salary_negotiation" in themes:
+                suggestions.append("• Refine your salary negotiation approach")
+            if "networking" in themes:
+                suggestions.append("• Expand your professional network")
+            if "resume" in themes:
+                suggestions.append("• Further optimize your resume")
+            if "career_strategy" in themes:
+                suggestions.append("• Develop your long-term career plan")
+        else:
+            # Business suggestions
+            if "pricing" in themes:
+                suggestions.append("• Continue refining your pricing strategy")
+            if "clients" in themes:
+                suggestions.append("• Work on client acquisition methods")
+            if "services" in themes:
+                suggestions.append("• Develop new service packages")
+            if "marketing" in themes:
+                suggestions.append("• Improve your marketing approach")
+            if "website" in themes:
+                suggestions.append("• Optimize your website for conversions")
+            if "sales" in themes:
+                suggestions.append("• Enhance your sales process")
+    
+    def _get_domain_specific_general_suggestions(self) -> List[str]:
+        """
+        Get domain-specific general suggestions.
+        
+        Returns:
+            List of general suggestions
+        """
+        domain = self.expert_profile.get('expertise_domain', '').lower()
+        
+        if 'career' in domain or 'job' in domain:
+            return [
+                "• Update and optimize your resume for your target roles",
+                "• Research companies and roles that align with your career goals",
+                "• Practice interviewing and develop compelling career stories",
+                "• Build your professional network in your target industry",
+                "• Prepare for salary negotiation in your next role",
+                "• Develop new skills that advance your career trajectory",
+                "• Create a strategic career advancement plan",
+                "• Work on building confidence and overcoming career limiting beliefs"
+            ]
+        else:
+            return [
+                "• Review your current pricing and see if you can raise rates",
+                "• Identify your next ideal client and create a plan to reach them",
+                "• Develop a new service package or product",
+                "• Work on your business positioning and messaging",
+                "• Create a lead generation system for your business",
+                "• Analyze your current client base and identify expansion opportunities",
+                "• Build a referral system to get more clients",
+                "• Develop a passive income stream for your business"
+            ]
+    
+    def get_expert_title(self) -> str:
+        """
+        Get the expert title for the chat interface.
+        
+        Returns:
+            Expert title string
+        """
+        return self._get_expert_title() 

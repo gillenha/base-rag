@@ -135,19 +135,25 @@ def chat(
     # Create RAG chain
     rag_chain = create_rag_chain(vector_store, model_name, use_context_aware_prompting)
     
-    # Initialize greeting generator
-    greeting_generator = GreetingGenerator(chat_logs_dir="./chat_logs", user_profile=user_profile)
+    # Initialize greeting generator with expert configuration
+    expert_config_path = os.getenv('EXPERT_CONFIG_PATH')
+    greeting_generator = GreetingGenerator(
+        chat_logs_dir="./chat_logs", 
+        user_profile=user_profile,
+        expert_config_path=expert_config_path
+    )
     
-    # Generate personalized greeting
+    # Generate personalized greeting and expert title
     greeting_message = greeting_generator.generate_greeting()
     quick_suggestions = greeting_generator.get_quick_start_suggestions()
+    expert_title = greeting_generator.get_expert_title()
     
     # Ensure chat_logs directory exists if autosave is enabled
     if autosave:
         os.makedirs("./chat_logs", exist_ok=True)
     
-    # Display personalized welcome message
-    welcome_panel = f"[bold]Your Business Coach[/bold]\n\n{greeting_message}\n"
+    # Display personalized welcome message with dynamic title
+    welcome_panel = f"[bold]{expert_title}[/bold]\n\n{greeting_message}\n"
     
     if quick_suggestions:
         welcome_panel += "\n[bold]Quick start suggestions:[/bold]\n"
@@ -155,14 +161,27 @@ def chat(
         welcome_panel += "\n"
     
     autosave_note = "\nResponses will be automatically saved to chat_logs/" if autosave else ""
-    welcome_panel += f"{autosave_note}\nType [bold]'exit'[/bold], [bold]'quit'[/bold] to end, or [bold]'profile'[/bold] to see what I know about your business."
+    
+    # Dynamic profile message based on domain
+    try:
+        from .utils.expert_analyzer import load_expert_config
+        config = load_expert_config(os.getenv('EXPERT_CONFIG_PATH'))
+        domain = config.get('expert_profile', {}).get('expertise_domain', '').lower()
+        if 'career' in domain or 'job' in domain:
+            profile_context = "career profile"
+        else:
+            profile_context = "business profile"
+    except:
+        profile_context = "profile"
+    
+    welcome_panel += f"{autosave_note}\nType [bold]'exit'[/bold], [bold]'quit'[/bold] to end, or [bold]'profile'[/bold] to see what I know about your {profile_context}."
     
     console.print(Panel.fit(
         welcome_panel,
         box=ROUNDED,
         border_style="blue",
         padding=(1, 2),
-        title="Earnable Coach"
+        title=expert_title.split(' - ')[0] if ' - ' in expert_title else expert_title
     ))
     
     # Initialize markdown file if save_to_file is specified
@@ -171,13 +190,28 @@ def chat(
         # Generate a default filename with timestamp if not provided
         if save_to_file == "auto":
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            save_to_file = f"earnable_coach_{timestamp}.md"
+            # Dynamic filename based on expert
+            try:
+                from .utils.expert_analyzer import load_expert_config
+                config = load_expert_config(os.getenv('EXPERT_CONFIG_PATH'))
+                expert_name = config.get('expert_profile', {}).get('name', 'coach').lower().replace(' ', '_')
+                save_to_file = f"{expert_name}_coach_{timestamp}.md"
+            except:
+                save_to_file = f"coach_{timestamp}.md"
         
         # Create or open the file
         try:
             os.makedirs(os.path.dirname(os.path.abspath(save_to_file)), exist_ok=True)
             md_file = open(save_to_file, "w", encoding="utf-8")
-            md_file.write("# Earnable Coach Conversation\n\n")
+            # Dynamic conversation title
+            try:
+                from .utils.expert_analyzer import load_expert_config
+                config = load_expert_config(os.getenv('EXPERT_CONFIG_PATH'))
+                expert_name = config.get('expert_profile', {}).get('name', 'Coach')
+                title = f"# {expert_name} Coach Conversation\n\n"
+            except:
+                title = "# Coach Conversation\n\n"
+            md_file.write(title)
             md_file.write(f"Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
             console.print(f"[bold]Saving conversation to[/bold]: {save_to_file}")
         except Exception as e:
@@ -192,11 +226,23 @@ def chat(
         
         # Check if user wants to exit
         if query.lower() in ("exit", "quit"):
-            console.print("[bold green]Coach:[/bold green] It was great talking with you. Keep building your business! Goodbye!")
+            # Dynamic goodbye message based on domain
+            try:
+                from .utils.expert_analyzer import load_expert_config
+                config = load_expert_config(os.getenv('EXPERT_CONFIG_PATH'))
+                domain = config.get('expert_profile', {}).get('expertise_domain', '').lower()
+                if 'career' in domain or 'job' in domain:
+                    goodbye_msg = "It was great talking with you. Keep advancing your career! Goodbye!"
+                else:
+                    goodbye_msg = "It was great talking with you. Keep building your business! Goodbye!"
+            except:
+                goodbye_msg = "It was great talking with you. Goodbye!"
+            
+            console.print(f"[bold green]Coach:[/bold green] {goodbye_msg}")
             
             # Save exit message to file if enabled
             if md_file:
-                md_file.write("\n## You\n\nexit\n\n## Coach\n\nIt was great talking with you. Keep building your business! Goodbye!\n")
+                md_file.write(f"\n## You\n\nexit\n\n## Coach\n\n{goodbye_msg}\n")
                 md_file.close()
                 console.print(f"[bold]Conversation saved to[/bold]: {save_to_file}")
             
@@ -205,9 +251,22 @@ def chat(
         # Check if user wants to see their profile
         if query.lower() == "profile":
             profile_text = user_profile.get_formatted_profile()
+            
+            # Dynamic profile title based on domain
+            try:
+                from .utils.expert_analyzer import load_expert_config
+                config = load_expert_config(os.getenv('EXPERT_CONFIG_PATH'))
+                domain = config.get('expert_profile', {}).get('expertise_domain', '').lower()
+                if 'career' in domain or 'job' in domain:
+                    profile_title = "Your Career Profile"
+                else:
+                    profile_title = "Your Business Profile"
+            except:
+                profile_title = "Your Profile"
+            
             console.print(Panel(
                 profile_text,
-                title="Your Business Profile",
+                title=profile_title,
                 border_style="green"
             ))
             continue
@@ -321,7 +380,15 @@ def chat(
                 filepath = os.path.join("./chat_logs", filename)
                 
                 with open(filepath, "w", encoding="utf-8") as f:
-                    f.write(f"# Earnable Coach Response\n\n")
+                    # Dynamic response title
+                    try:
+                        from .utils.expert_analyzer import load_expert_config
+                        config = load_expert_config(os.getenv('EXPERT_CONFIG_PATH'))
+                        expert_name = config.get('expert_profile', {}).get('name', 'Coach')
+                        title = f"# {expert_name} Coach Response\n\n"
+                    except:
+                        title = "# Coach Response\n\n"
+                    f.write(title)
                     f.write(f"**Date:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
                     f.write(f"## You\n\n{query}\n\n")
                     f.write(f"## Coach\n\n{formatted_response['answer'].strip()}\n\n")
@@ -403,7 +470,15 @@ def chat(
                 filepath = os.path.join("./chat_logs", filename)
                 
                 with open(filepath, "w", encoding="utf-8") as f:
-                    f.write(f"# Earnable Coach Error\n\n")
+                    # Dynamic error title
+                    try:
+                        from .utils.expert_analyzer import load_expert_config
+                        config = load_expert_config(os.getenv('EXPERT_CONFIG_PATH'))
+                        expert_name = config.get('expert_profile', {}).get('name', 'Coach')
+                        title = f"# {expert_name} Coach Error\n\n"
+                    except:
+                        title = "# Coach Error\n\n"
+                    f.write(title)
                     f.write(f"**Date:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
                     f.write(f"## You\n\n{query}\n\n")
                     f.write(f"## Error\n\n```\n{e}\n```\n")
@@ -439,18 +514,24 @@ def autosave(
     user_profile = UserProfile(profile_path=profile_path)
     rag_chain = create_rag_chain(vector_store, model_name, use_context_aware_prompting)
 
-    # Initialize greeting generator
-    greeting_generator = GreetingGenerator(chat_logs_dir=log_dir, user_profile=user_profile)
+    # Initialize greeting generator with expert configuration
+    expert_config_path = os.getenv('EXPERT_CONFIG_PATH')
+    greeting_generator = GreetingGenerator(
+        chat_logs_dir=log_dir, 
+        user_profile=user_profile,
+        expert_config_path=expert_config_path
+    )
     
-    # Generate personalized greeting
+    # Generate personalized greeting and expert title
     greeting_message = greeting_generator.generate_greeting()
     quick_suggestions = greeting_generator.get_quick_start_suggestions()
+    expert_title = greeting_generator.get_expert_title()
 
     # Ensure log directory exists
     os.makedirs(log_dir, exist_ok=True)
 
-    # Display personalized welcome message
-    welcome_panel = f"[bold]Autosave Chat Mode[/bold]\n\n{greeting_message}\n"
+    # Display personalized welcome message with dynamic title
+    welcome_panel = f"[bold]{expert_title} - Autosave Mode[/bold]\n\n{greeting_message}\n"
     
     if quick_suggestions:
         welcome_panel += "\n[bold]Quick start suggestions:[/bold]\n"
@@ -464,13 +545,25 @@ def autosave(
         box=ROUNDED,
         border_style="blue",
         padding=(1, 2),
-        title="Earnable Coach Autosave"
+        title=f"{expert_title.split(' - ')[0] if ' - ' in expert_title else expert_title} Autosave"
     ))
 
     while True:
         query = console.input("\n[bold blue]You:[/bold blue] ")
         if query.lower() in ("exit", "quit"):
-            console.print("[bold green]Coach:[/bold green] It was great talking with you. Keep building your business! Goodbye!")
+            # Dynamic goodbye message based on domain
+            try:
+                from .utils.expert_analyzer import load_expert_config
+                config = load_expert_config(os.getenv('EXPERT_CONFIG_PATH'))
+                domain = config.get('expert_profile', {}).get('expertise_domain', '').lower()
+                if 'career' in domain or 'job' in domain:
+                    goodbye_msg = "It was great talking with you. Keep advancing your career! Goodbye!"
+                else:
+                    goodbye_msg = "It was great talking with you. Keep building your business! Goodbye!"
+            except:
+                goodbye_msg = "It was great talking with you. Goodbye!"
+            
+            console.print(f"[bold green]Coach:[/bold green] {goodbye_msg}")
             break
         if not query.strip():
             continue
@@ -493,7 +586,15 @@ def autosave(
             filename = f"{timestamp}.md"
             filepath = os.path.join(log_dir, filename)
             with open(filepath, "w", encoding="utf-8") as f:
-                f.write(f"### Earnable Coach Response\n\n")
+                # Dynamic response title
+                try:
+                    from .utils.expert_analyzer import load_expert_config
+                    config = load_expert_config(os.getenv('EXPERT_CONFIG_PATH'))
+                    expert_name = config.get('expert_profile', {}).get('name', 'Coach')
+                    title = f"### {expert_name} Coach Response\n\n"
+                except:
+                    title = "### Coach Response\n\n"
+                f.write(title)
                 f.write(f"### You\n\n{query}\n\n")
                 f.write(f"### Coach\n\n{formatted_response['answer'].strip()}\n\n")
                 # Save sources in markdown file
